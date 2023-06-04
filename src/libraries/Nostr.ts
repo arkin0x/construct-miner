@@ -60,14 +60,23 @@ export const getMostRecent = async (pubkey: string, kinds: number[], relays: str
       console.warn('event.created_at is not a number',event)
     }
   })
-  const mostRecent = await new Promise<Event>((resolve)  => {
-    sub.on('eose', () => {
-      // find most recent kind event
-      const mostRecent = kind.reduce((a, b) => a.created_at > b.created_at ? a : b)
-      resolve(mostRecent)
+  try {
+    const mostRecent = await new Promise<Event>((resolve,reject)  => {
+      sub.on('eose', () => {
+        // find most recent kind event
+        if (kind.length === 0) {
+          reject('No events found.')
+        } else {
+          const mostRecent = kind.reduce((a, b) => a.created_at > b.created_at ? a : b)
+          resolve(mostRecent)
+        }
+      })
     })
-  })
-  return mostRecent
+    return mostRecent
+  } catch (e) {
+    console.warn('Failed to get most recent events.',kinds, pubkey)
+    return [];
+  }
 }
 
 export const getMyRelays = async (pubkey: string) => {
