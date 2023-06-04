@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { NostrIdentity, validateNostrIdentity } from './types/NostrIdentity'
+import { NostrIdentity } from './types/NostrIdentity'
 import { IdentityContext } from "./components/IdentityContext"
 import Home from './components/Home'
 import Miner from './components/Miner'

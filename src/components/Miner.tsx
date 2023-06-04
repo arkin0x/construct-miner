@@ -1,13 +1,11 @@
-import { useState, useContext, useEffect } from "react";
-import { NostrIdentityContext } from "../types/NostrIdentity";
-import { defaultProfile } from "../libraries/Nostr";
-import { IdentityContext } from "./IdentityContext";
-import { getMyProfile } from "../libraries/Nostr";
+import { useContext, useEffect } from "react"
+import { NostrIdentityContext } from "../types/NostrIdentity"
+import { IdentityContext } from "./IdentityContext"
+import { getMyProfile } from "../libraries/Nostr"
+import MyConstructs from "./MyConstructs"
 
 const Miner = () => {
-  const { identity, setIdentityHandler } = useContext<NostrIdentityContext>(IdentityContext);
-
-  console.log(identity.pubkey)
+  const { identity, setIdentityHandler } = useContext<NostrIdentityContext>(IdentityContext)
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -22,8 +20,9 @@ const Miner = () => {
       <h1>Miner</h1>
       <h2>Welcome {identity.nip05}</h2>
       <h2>pubkey: {identity.pubkey}</h2>
+      <MyConstructs/>
     </div>
   )
 }
 
-export default Miner;
+export default Miner

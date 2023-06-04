@@ -1,4 +1,4 @@
-import { SimplePool, Filter, Sub, Event } from "nostr-tools"
+import { SimplePool, Filter, Sub, Event, Kind } from "nostr-tools"
 import { NostrIdentity } from "../types/NostrIdentity"
 
 export const defaultRelays = [
@@ -13,7 +13,6 @@ export const defaultRelays = [
   'wss://puravida.nostr.land/',
   'wss://nos.lol/',
   'wss://relay.snort.social/',
-  'wss://brb.io/',
   'wss://nostrica.nostrnotes.com/',
   'wss://relay.devstr.org/',
 ]
@@ -28,6 +27,26 @@ export const defaultProfile: NostrIdentity = {
 }
 
 export const pool = new SimplePool()
+
+type EventsByKind = {
+  [key: number]: Event[]
+}
+
+export const getAll = async (pubkey: string[] | undefined, kinds: number[], relays: string[] = defaultRelays) => {
+  const filter: Filter<number> = {kinds: [...kinds], authors: pubkey}
+  const sub: Sub = pool.sub(relays,[filter])
+  const events: EventsByKind = {}
+  sub.on('event', event => {
+    events[event.kind].push(event)
+  })
+  const all = await new Promise<EventsByKind>((resolve) => {
+    sub.on('eose', () => {
+      // find most recent kind event
+      resolve(events)
+    })
+  })
+  return all
+}
 
 export const getMostRecent = async (pubkey: string, kinds: number[], relays: string[] = defaultRelays) => {
   if (kinds.length > 1) console.warn('getMostRecent will only return the single most recent event of all supplied kinds.')
