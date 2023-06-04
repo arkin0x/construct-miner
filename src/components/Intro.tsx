@@ -3,6 +3,7 @@ import { NostrIdentityContext } from '../types/NostrIdentity'
 import { IdentityContext } from "./IdentityContext";
 import { NostrWindow } from '../types/NostrWindow'
 import { useContext } from 'react'
+import { defaultProfile } from '../libraries/Nostr';
 
 // This declaration allows us to access window.nostr without TS errors.
 // https://stackoverflow.com/a/47130953
@@ -23,7 +24,8 @@ const Intro = () => {
 
   async function signIn() {
     const pubkey = await window.nostr?.getPublicKey()
-    setIdentityHandler(pubkey)
+    const profile = Object.assign({}, defaultProfile, {pubkey})
+    setIdentityHandler(profile)
     navigate('/miner')
   }
 

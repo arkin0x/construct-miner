@@ -4,15 +4,15 @@ import { NostrIdentity, validateNostrIdentity } from './types/NostrIdentity'
 import { IdentityContext } from "./components/IdentityContext"
 import Home from './components/Home'
 import Miner from './components/Miner'
+import { defaultProfile } from './libraries/Nostr'
 
 function App() {
 
-  const [identity, setIdentity] = useState<NostrIdentity>(null)
+  const [identity, setIdentity] = useState<NostrIdentity>(defaultProfile)
 
-  const setIdentityHandler = (pubkey: string) => {
-    if( !validateNostrIdentity(pubkey) ) throw new Error('Invalid identity')
-    setIdentity(pubkey)
-    console.log(identity)
+  const setIdentityHandler = (id: NostrIdentity) => {
+    const profile = Object.assign({}, defaultProfile, id)
+    setIdentity(profile)
   }
 
   return (
