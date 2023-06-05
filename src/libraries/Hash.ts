@@ -1,6 +1,14 @@
-import { digest } from "@chainsafe/as-sha256";
+import { digest } from "@chainsafe/as-sha256"
+import { getEventHash } from "nostr-tools"
 
-const encoder = new TextEncoder()
+export const encoder = new TextEncoder()
+
+export function validateHash(value: string): boolean {
+  if (value && value.length === 64 && value.match(/^[0-9a-fA-F]+$/)) {
+    return true;
+  }
+  return false;
+}
 
 export function hash(data: string): string {
   const encoded = encoder.encode(data)
@@ -36,6 +44,63 @@ export function uint8ToHex(hash: Uint8Array): string {
     hex += byte;
   }
   return hex;
+}
+
+export function hexToUint8(hexString: string) {
+  if (hexString.length % 2 !== 0 || hexString.length !== 64) {
+    throw new Error('Invalid hexadecimal string length');
+  }
+
+  const uint8Array = new Uint8Array(hexString.length / 2);
+
+  for (let i = 0, j = 0; i < hexString.length; i += 2, j++) {
+    const byte = parseInt(hexString.substring(i, 2), 16);
+    if (isNaN(byte)) {
+      throw new Error('Invalid hexadecimal string');
+    }
+    uint8Array[j] = byte;
+  }
+
+  return uint8Array;
+}
+
+export function uint8ArrayToBinaryArray(uint8Array: Uint8Array): Array {
+  const binaryArray = [];
+
+  for (let i = 0; i < uint8Array.length; i++) {
+    const byte = uint8Array[i];
+    for (let j = 7; j >= 0; j--) {
+      binaryArray.push((byte >> j) & 1);
+    }
+  }
+
+  return binaryArray;
+}
+
+export function padBinaryString(binaryString: string): string {
+  const paddingLength = 8 - binaryString.length;
+  if (paddingLength <= 0) {
+    return binaryString;
+  }
+  
+  const paddingZeros = '0'.repeat(paddingLength);
+  return paddingZeros + binaryString;
+}
+
+export function generateSecureEntropyString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+
+  let entropyString = '';
+  const uint32Array = new Uint32Array(length);
+
+  window.crypto.getRandomValues(uint32Array);
+
+  for (let i = 0; i < length; i++) {
+    entropyString += characters.charAt(uint32Array[i] % charactersLength);
+  }
+
+  return entropyString;
 }
 
 export function hammingDistance(arr1: Uint8Array, arr2: Uint8Array): number {
