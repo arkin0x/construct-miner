@@ -25,6 +25,8 @@ function initiateMining(pubkey, targetHex, targetWork = 10) {
   
   while (active && highestWork < targetWork) {
     const result = mine(pubkey, nonce, targetUint8);
+
+    postMessage({debug: 'checkin', result, highestWorkNonce });
     
     if (result > highestWork) {
       highestWork = result;
@@ -43,15 +45,15 @@ function mine(pubkey, nonce, target) {
   const event = {
     kind: 332,
     created_at: Math.floor(Date.now() / 1000),
-    tags: [['nonce', nonce, target]],
+    tags: [['nonce', nonce.toString(), target.toString()]],
     content: '',
     pubkey
   }
 
   const id_uint8Array = digest(encoder.encode(serializeEvent(event)));
-  const dist = getConstructProofOfWork(id_uint8Array, target);
+  const work = getConstructProofOfWork(id_uint8Array, target);
 
-  return dist;
+  return work;
 }
 
 

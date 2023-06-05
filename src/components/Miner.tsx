@@ -3,17 +3,18 @@ import { NostrIdentityContext } from "../types/NostrIdentity"
 import { IdentityContext } from "./IdentityContext"
 import { getMyProfile } from "../libraries/Nostr"
 import MyConstructs from "./MyConstructs"
-import { hexToUint8, validateHash } from "../libraries/Hash"
+import { validateHash } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
 
 type ConstructMinerMessageReceive = {
+  debug?: string,
   highestWork: number,
   highestWorkNonce: number,
 }
 
 type ConstructMinerMessageSend = {
   command: 'startMining' | 'stopMining',
-  data: {
+  data?: {
     pubkey: string,
     targetHex: string,
     targetWork: number,
@@ -21,10 +22,11 @@ type ConstructMinerMessageSend = {
 }
 
 const evaluateWork = function(work: ConstructMinerMessageReceive) {
-  if (work >= targetWork) {
-    worker.terminate();
-    console.log('Mining finished');
-  }
+  console.log(work)
+  // if (work >= targetWork) {
+  //   worker.terminate();
+  //   console.log('Mining finished');
+  // }
 }
 
 const Miner = () => {
@@ -33,6 +35,7 @@ const Miner = () => {
   const [ targetHash, setTargetHash ] = useState<string>('')
   const [ targetWork, setTargetWork ] = useState<number>(0)
   const [ validTargetHash, setValidTargetHash ] = useState<boolean>(false)
+  const [ miningActive, setMiningActive ] = useState<boolean>(false)
 
   // set up worker and listener
   useEffect(() => {
@@ -40,8 +43,7 @@ const Miner = () => {
     setWorkerInstance(worker)
     worker.onmessage = (message) => {
       // @todo remove this log, debug only
-      console.log("Received: " + message.data.highestWork,message);
-      evaluateWork(message.data)
+      evaluateWork(message.data as ConstructMinerMessageReceive)
     }
     return () => {
       worker.terminate()
@@ -80,7 +82,6 @@ const Miner = () => {
   }
 
   const startMining = () => {
-    console.log('targetHash',hexToUint8(targetHash))
     postMessageToWorker({
       command: 'startMining',
       data: {
@@ -89,6 +90,14 @@ const Miner = () => {
         targetWork: targetWork,
       }
     })
+    setMiningActive(true)
+  }
+
+  const stopMining = () => {
+    postMessageToWorker({
+      command: 'stopMining',
+    })
+    setMiningActive(false)
   }
 
   // render stuff
@@ -106,7 +115,7 @@ const Miner = () => {
         <label>Target Work</label><br/>
         <input className={'input'} type="number" max={256} min={1} defaultValue={10} onChange={updateTargetWork}/>
         
-        { validTargetHash ? <><br/><br/><button onClick={startMining}>Start Mining ▶</button></> : null}
+        { validTargetHash ? <><br/><br/>{ miningActive ? <button onClick={stopMining}>Stop Mining 🛑</button> : <button onClick={startMining}>Start Mining ▶</button>}</> : null}
       </div>
       <MyConstructs/>
     </div>
