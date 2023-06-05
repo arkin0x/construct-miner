@@ -1,10 +1,6 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-// import { encoder, hexToUint8, getConstructProofOfWork } from "../libraries/Hash"
-// import { digest } from "@chainsafe/as-sha256"
-// import { serializeEvent } from "nostr-tools"
-const { encoder, hexToUint8, getConstructProofOfWork } = require("../libraries/Hash");
-const { digest } = require("@chainsafe/as-sha256");
-const { serializeEvent } = require("nostr-tools");
+import { encoder, hexToUint8, getConstructProofOfWork } from "../libraries/Hash"
+import { digest } from "@chainsafe/as-sha256"
+import { serializeEvent } from "nostr-tools"
 
 let active = false;
 

@@ -54,7 +54,7 @@ export function hexToUint8(hexString: string) {
   const uint8Array = new Uint8Array(hexString.length / 2);
 
   for (let i = 0, j = 0; i < hexString.length; i += 2, j++) {
-    const byte = parseInt(hexString.substring(i, 2), 16);
+    const byte = parseInt(hexString.substring(i, i+2), 16);
     if (isNaN(byte)) {
       throw new Error('Invalid hexadecimal string');
     }

@@ -3,8 +3,8 @@ import { NostrIdentityContext } from "../types/NostrIdentity"
 import { IdentityContext } from "./IdentityContext"
 import { getMyProfile } from "../libraries/Nostr"
 import MyConstructs from "./MyConstructs"
-import { validateHash } from "../libraries/Hash"
-import Worker from 'worker-loader!../workers/ConstructMiner.worker.js'
+import { hexToUint8, validateHash } from "../libraries/Hash"
+import Worker from '../workers/ConstructMiner.worker?worker'
 
 type ConstructMinerMessageReceive = {
   highestWork: number,
@@ -58,10 +58,11 @@ const Miner = () => {
   }, [identity])
 
   const updateTargetHash = (e: React.KeyboardEvent<HTMLInputElement> | React.ChangeEvent<HTMLInputElement>) => {
-    if (validateHash(e.currentTarget.value)) {
-      setTargetHash(e.currentTarget.value)
+    const newTargetHash = e.currentTarget.value.trim()
+    if (validateHash(newTargetHash)) {
+      setTargetHash(newTargetHash)
       setValidTargetHash(true)
-      console.log('updated hash target:',e.currentTarget.value)
+      console.log('updated hash target:',newTargetHash)
     } else {
       setValidTargetHash(false)
     }
@@ -79,6 +80,7 @@ const Miner = () => {
   }
 
   const startMining = () => {
+    console.log('targetHash',hexToUint8(targetHash))
     postMessageToWorker({
       command: 'startMining',
       data: {
