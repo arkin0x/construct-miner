@@ -97,6 +97,12 @@ button:focus-visible {
 .actions {
   display: flex;
   justify-content: space-evenly;
+  margin: 0 -1rem;
+  button {
+    flex-grow: 2;
+    margin: 1rem;
+    padding: 1rem 0;
+  }
 }
 
 input {
@@ -118,5 +124,13 @@ input {
     border-right-width: 1em;
     transition: all 150ms ease-in-out;
     text-align: center;
+  }
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  img {
+    max-width: 20vh;
   }
 }

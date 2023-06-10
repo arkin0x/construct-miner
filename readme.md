@@ -1,8 +1,8 @@
 # Construct Miner
 
-This is a convenient web interface to help people easily get started with claiming real-estate in [cyberspace](https://github.com/arkin0x/cyberspace#building).
+This is a convenient web interface to help people easily get started with claiming real-estate in [cyberspace](https://github.com/arkin0x/cyberspace#claiming-space-and-building-structures).
 
-Cyberspace is a finite digital reality where proof-of-work governs all actions. Scarce space in cyberspace can be claimed via mining proof-of-work; the cryptographic keypair that owns the highest proof-of-work for a given space is the rightful owner of that space.
+Cyberspace is a permissionless finite digital extension of reality where proof-of-work governs all actions. Scarce space in cyberspace can be claimed via mining proof-of-work; the cryptographic keypair that owns the highest proof-of-work for a given space is the rightful owner of that space.
 
 The amount of proof-of-work determines the size of the space (bounding box) and the location of the space is a 3 dimensional coordinate derived from the proof.
 

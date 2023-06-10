@@ -4,6 +4,7 @@ import { IdentityContext } from "./IdentityContext";
 import { NostrWindow } from '../types/NostrWindow'
 import { useContext } from 'react'
 import { defaultProfile } from '../libraries/Nostr';
+import logo from '../assets/construct.svg'
 
 // This declaration allows us to access window.nostr without TS errors.
 // https://stackoverflow.com/a/47130953
@@ -31,6 +32,7 @@ const Intro = () => {
 
   return (
     <div id="intro">
+      <div className="logo"><img src={logo}/></div>
       <h1>Cyberspace Construct Miner v0.1</h1>
       <p>
         Constructs are ownable plots of real estate in the Cyberspace that are 
