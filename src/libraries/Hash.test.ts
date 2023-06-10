@@ -5,7 +5,7 @@ import { getConstructProofOfWork } from './Hash'
   const proofOfWork = getConstructProofOfWork(targetHash, currentHash, 7);
   console.log(proofOfWork, proofOfWork === 7)
 
-  const targetHash2 = new Uint8Array([0b11100011]);
-  const currentHash2 = new Uint8Array([0b11100010]);
+  const targetHash2 = new Uint8Array([0b01111111]);
+  const currentHash2 = new Uint8Array([0b00101010]);
   const proofOfWork2 = getConstructProofOfWork(targetHash2, currentHash2, 7);
-  console.log(proofOfWork2, proofOfWork2 === 6)
+  console.log(proofOfWork2, proofOfWork2 === 3)
