@@ -11,7 +11,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "yarn ts-node ./src/libraries/Hash.test.ts"
   },
   "dependencies": {
     "@chainsafe/as-sha256": "^0.4.1",
