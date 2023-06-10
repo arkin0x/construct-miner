@@ -121,7 +121,7 @@ export function hammingDistance(arr1: Uint8Array, arr2: Uint8Array): number {
   return dist;
 }
 
-export function getConstructProofOfWork(targetHash: Uint8Array, currentHash: Uint8Array, length: number = 255) {
+export function getConstructProofOfWork(targetHash: Uint8Array, currentHash: Uint8Array, length = 255) {
   // ignore 256th bit (it's ignored in the spec)
   // we do this before calculating the hamming distance because we shouldn't change how hamming function works but we need to ignore the last bit as it is not used in any coordinate.
   // zero out last bit in last byte of targetHash
