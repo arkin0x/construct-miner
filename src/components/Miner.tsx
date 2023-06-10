@@ -71,6 +71,7 @@ const Miner = () => {
   }
 
   const updateTargetWork = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('update work target: ', e.currentTarget.value)
     setTargetWork(parseInt(e.currentTarget.value))
   }
 

@@ -1,5 +1,4 @@
 import { digest } from "@chainsafe/as-sha256"
-import { getEventHash } from "nostr-tools"
 
 export const encoder = new TextEncoder()
 
@@ -18,7 +17,7 @@ export function hash(data: string): string {
 }
 
 // hex should be a hexadecimal string (with no 0x prefix)
-export function countLeadingZeroes(hex) {
+export function countLeadingZeroes(hex: string) {
   let count = 0;
 
   for (let i = 0; i < hex.length; i++) {
@@ -64,7 +63,7 @@ export function hexToUint8(hexString: string) {
   return uint8Array;
 }
 
-export function uint8ArrayToBinaryArray(uint8Array: Uint8Array): Array {
+export function uint8ArrayToBinaryArray(uint8Array: Uint8Array): Array<number> {
   const binaryArray = [];
 
   for (let i = 0; i < uint8Array.length; i++) {
@@ -87,7 +86,7 @@ export function padBinaryString(binaryString: string): string {
   return paddingZeros + binaryString;
 }
 
-export function generateSecureEntropyString(length) {
+export function generateSecureEntropyString(length: number) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;
 
@@ -122,8 +121,7 @@ export function hammingDistance(arr1: Uint8Array, arr2: Uint8Array): number {
   return dist;
 }
 
-export function getConstructProofOfWork(targetHash: Uint8Array, currentHash: Uint8Array) {
-  const length = 255
+export function getConstructProofOfWork(targetHash: Uint8Array, currentHash: Uint8Array, length: number = 255) {
   // ignore 256th bit (it's ignored in the spec)
   // we do this before calculating the hamming distance because we shouldn't change how hamming function works but we need to ignore the last bit as it is not used in any coordinate.
   // zero out last bit in last byte of targetHash
