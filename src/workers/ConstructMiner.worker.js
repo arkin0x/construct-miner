@@ -1,6 +1,7 @@
 import { encoder, hexToUint8, getConstructProofOfWork } from "../libraries/Hash"
 import { digest } from "@chainsafe/as-sha256"
 import { serializeEvent } from "nostr-tools"
+import { constructSize } from "../assets/pow-table";
 
 let active = false;
 
@@ -26,18 +27,16 @@ function initiateMining(pubkey, targetHex, targetWork = 10) {
   while (active && highestWork < targetWork) {
     const result = mine(pubkey, nonce, targetUint8, targetHex);
 
-    postMessage({debug: 'checkin', result, highestWorkNonce });
-    
     if (result > highestWork) {
       highestWork = result;
       highestWorkNonce = nonce;
-      postMessage({ debug: 'complete', highestWork, highestWorkNonce });
-      break;
+      postMessage({ status: 'new high', highestWork, highestWorkNonce });
     }
 
     nonce++;
   }
 
+  postMessage({ status: 'complete', highestWork, highestWorkNonce });
   // done mining, we found our target OR active is already false
   active = false
 }

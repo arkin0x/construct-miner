@@ -129,6 +129,8 @@ export function getConstructProofOfWork(targetHash: Uint8Array, currentHash: Uin
   // zero out last bit in last byte of currentHash
   currentHash[currentHash.length - 1] &= 0b01111111;
   const distance = hammingDistance(targetHash, currentHash)
-  const proofOfWorkTotal = length - distance
-  return proofOfWorkTotal;
+  const similarity = length - distance
+  // We subtract 128 because any random hash will have an average similarity of 128.
+  const validWork = Math.max(0, similarity - 128)
+  return validWork;
 }

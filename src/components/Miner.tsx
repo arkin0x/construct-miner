@@ -7,7 +7,7 @@ import { validateHash } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
 
 type ConstructMinerMessageReceive = {
-  debug?: string,
+  status?: string,
   highestWork: number,
   highestWorkNonce: number,
 }
@@ -33,7 +33,7 @@ const Miner = () => {
   const { identity, setIdentityHandler } = useContext<NostrIdentityContext>(IdentityContext)
   const [workerInstance, setWorkerInstance] = useState<Worker|null>(null);
   const [ targetHash, setTargetHash ] = useState<string>('')
-  const [ targetWork, setTargetWork ] = useState<number>(0)
+  const [ targetWork, setTargetWork ] = useState<number>(10)
   const [ validTargetHash, setValidTargetHash ] = useState<boolean>(false)
   const [ miningActive, setMiningActive ] = useState<boolean>(false)
 
@@ -44,6 +44,9 @@ const Miner = () => {
     worker.onmessage = (message) => {
       // @todo remove this log, debug only
       evaluateWork(message.data as ConstructMinerMessageReceive)
+      if (message.data.status === 'complete') {
+        setMiningActive(false)
+      }
     }
     return () => {
       worker.terminate()
@@ -53,8 +56,12 @@ const Miner = () => {
   // retrieve profile meta and save to context.
   useEffect(() => {
     const loadProfile = async () => {
-      const myProfile = await getMyProfile(identity.pubkey)
-      setIdentityHandler(myProfile)
+      try {
+        const myProfile = await getMyProfile(identity.pubkey)
+        setIdentityHandler(myProfile)
+      } catch (e) {
+        console.log('Could not load profile.')
+      }
     }
     loadProfile()
   }, [identity])
