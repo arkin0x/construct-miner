@@ -10,6 +10,8 @@ type ConstructMinerMessageReceive = {
   status?: string,
   highestWork: number,
   highestWorkNonce: number,
+  latestWork?: number,
+  latestNonce?: number,
 }
 
 type ConstructMinerMessageSend = {
@@ -36,6 +38,8 @@ const Miner = () => {
   const [ targetWork, setTargetWork ] = useState<number>(10)
   const [ validTargetHash, setValidTargetHash ] = useState<boolean>(false)
   const [ miningActive, setMiningActive ] = useState<boolean>(false)
+  const [ miningStartTime, setMiningStartTime ] = useState<number>(0)
+  const [ miningEndTime, setMiningEndTime ] = useState<number>(0)
 
   // set up worker and listener
   useEffect(() => {
@@ -44,7 +48,8 @@ const Miner = () => {
     worker.onmessage = (message) => {
       // @todo remove this log, debug only
       evaluateWork(message.data as ConstructMinerMessageReceive)
-      if (message.data.status === 'complete') {
+      if (['complete','stopped'].includes(message.data.status)) {
+        setMiningEndTime(performance.now())
         setMiningActive(false)
       }
     }
@@ -90,6 +95,8 @@ const Miner = () => {
   }
 
   const startMining = () => {
+    setMiningStartTime(performance.now())
+    setMiningEndTime(0)
     postMessageToWorker({
       command: 'startMining',
       data: {
@@ -105,6 +112,7 @@ const Miner = () => {
     postMessageToWorker({
       command: 'stopMining',
     })
+    setMiningEndTime(performance.now())
     setMiningActive(false)
   }
 
@@ -124,6 +132,10 @@ const Miner = () => {
         <input className={'input'} type="number" max={256} min={1} defaultValue={10} onChange={updateTargetWork}/>
         
         { validTargetHash ? <><br/><br/>{ miningActive ? <button onClick={stopMining}>Stop Mining 🛑</button> : <button onClick={startMining}>Start Mining ▶</button>}</> : null}
+        <hr/>
+        { miningStartTime ? <p>Mining started at {miningStartTime}</p> : null }
+        { miningEndTime ? <p>Mining ended at {miningEndTime}</p> : null }
+        { miningStartTime && miningEndTime ? <p>Mining took {((miningEndTime - miningStartTime) / 1000).toFixed(2)}s</p> : null }
       </div>
       <MyConstructs/>
     </div>
