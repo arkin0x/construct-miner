@@ -10,6 +10,7 @@ type ConstructMinerMessageReceive = {
   status?: string,
   highestWork: number,
   highestWorkNonce: number,
+  highestCreatedAt: number,
   latestWork?: number,
   latestNonce?: number,
 }

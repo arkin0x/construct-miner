@@ -33,9 +33,9 @@ const Intro = () => {
   return (
     <div id="intro">
       <div className="logo"><img src={logo}/></div>
-      <h1>Cyberspace Construct Miner v0.1</h1>
+      <h1>ONOSENDAI Cyberspace Construct Miner v0.1</h1>
       <p>
-        Constructs are ownable plots of real estate in the Cyberspace that are 
+        Constructs are ownable plots of 3D space in Cyberspace that are 
         obtained by mining. This miner is an easy way to get started. Once you 
         own a construct, you can add Shards to it, which are arbitrary
         interactive 3D objects (coming soon).

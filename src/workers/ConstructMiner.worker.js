@@ -37,16 +37,17 @@ function initiateMining(pubkey, targetHex, targetWork = 10) {
   let latestWork = 0
   let nonce = 0
   let chunk = 0
-  const targetUint8 = hexToUint8(targetHex);
+  let created_at = Math.floor(Date.now() / 1000)
+  const targetUint8 = hexToUint8(targetHex)
   
   function mineChunk(){
     while (active && highestWork < targetWork && chunk < CHUNK_SIZE) {
-      const result = mine(pubkey, nonce, targetUint8, targetHex);
+      const result = mine(pubkey, nonce, targetUint8, targetHex, created_at);
 
       if (result > highestWork) {
         highestWork = result;
         highestWorkNonce = nonce;
-        postMessage({ status: 'new high', highestWork, highestWorkNonce });
+        postMessage({ status: 'new high', highestWork, highestWorkNonce, highestCreatedAt: created_at });
       }
 
       nonce++
@@ -55,13 +56,14 @@ function initiateMining(pubkey, targetHex, targetWork = 10) {
     }
     if (active && highestWork < targetWork && chunk >= CHUNK_SIZE) {
       // keep mining, schedule next chunk
-      postMessage({ status: 'heartbeat ' +(+new Date), highestWork, highestWorkNonce, latestWork, latestNonce: nonce });
+      created_at = Math.floor(Date.now() / 1000)
+      postMessage({ status: 'heartbeat ' + created_at, highestWork, highestWorkNonce, latestWork, latestNonce: nonce, highestCreatedAt: created_at });
       chunk = 0
-      setTimeout(mineChunk, 0)
+      setTimeout(mineChunk, 100)
     } else {
       active = false
       if (highestWork >= targetWork) {
-        postMessage({ status: 'complete', highestWork, highestWorkNonce });
+        postMessage({ status: 'complete', highestWork, highestWorkNonce, highestCreatedAt: created_at });
       } else if (!active) {
         postMessage({ status: 'stopped', highestWork, highestWorkNonce });
       }
@@ -72,19 +74,28 @@ function initiateMining(pubkey, targetHex, targetWork = 10) {
   // done mining, we found our target OR active is already false
 }
 
-function mine(pubkey, nonce, targetBinary, targetHex) {
-  const event = {
+function mine(pubkey, nonce, targetBinary, targetHex, created_at) {
+  let event = {
     kind: 332,
-    created_at: Math.floor(Date.now() / 1000),
+    created_at,
     tags: [['nonce', nonce.toString(), targetHex.toString()]],
     content: '',
     pubkey
   }
 
-  const id_uint8Array = digest(encoder.encode(serializeEvent(event)));
-  const work = getConstructProofOfWork(id_uint8Array, targetBinary);
+  let encodedEvent = encoder.encode(serializeEvent(event));
 
-  return work;
+  event = null;
+
+  let id_uint8Array = digest(encodedEvent);
+
+  encodedEvent = null;
+
+  let work = getConstructProofOfWork(id_uint8Array, targetBinary);
+
+  id_uint8Array = null;
+
+  return work
 }
 
 
