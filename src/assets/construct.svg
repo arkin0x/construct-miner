@@ -3,11 +3,14 @@
         <style>
             .cls-1 {
                 fill: none;
-                stroke: #fff;
+                /* stroke: #ccc; */
                 stroke-linecap: round;
                 stroke-linejoin: round;
                 stroke-width: 3px;
             }
+            /* .cls-1:hover {
+                stroke: #535bf2;
+            } */
         </style>
     </defs>
     <g id="Wireframe_Cyberspace" data-name="Wireframe Cyberspace">

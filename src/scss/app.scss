@@ -7,6 +7,7 @@ body {
  background: #111;
  color: #ccc;
  font-size: 16px;
+  cursor: crosshair;
 }
 
 // default stuff
@@ -130,7 +131,27 @@ input {
 .logo {
   display: flex;
   justify-content: center;
-  img {
+  #construct-logo {
+    margin: 1rem 0;
     max-width: 20vh;
+    line {
+      fill: none;
+      stroke: #ccc;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 3px;
+      transition: stroke 500ms ease-in-out;
+    }
+    &:hover line {
+      stroke: #646cff;
+    }
   }
+}
+
+.intro-title {
+  text-align: center;
+}
+
+.highlight-purple {
+  color: #646cff;
 }
