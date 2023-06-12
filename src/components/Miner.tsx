@@ -4,6 +4,7 @@ import { IdentityContext } from "./IdentityContext"
 import { getMyProfile } from "../libraries/Nostr"
 import MyConstructs from "./MyConstructs"
 import { validateHash } from "../libraries/Hash"
+import { ConstructLogo } from './ConstructLogo'
 import Worker from '../workers/ConstructMiner.worker?worker'
 
 type ConstructMinerMessageReceive = {
@@ -122,11 +123,12 @@ const Miner = () => {
 
   return (
     <div id="miner">
+      <div className="logo"><ConstructLogo/></div>
       <h1>Construct Miner</h1>
       <h2>Welcome {identity.nip05}</h2>
       <p>Your pubkey: {identity.pubkey}</p>
       <div className="panel">
-        <label>Target Hash {validTargetHash ? ' - Valid 256-bit Hash' : null}</label><br/>
+        <label>Target Hash {validTargetHash ? ' ✅ Valid 256-bit Hash' : null}</label><br/>
         <input className={inputTargetHashClass} type="text" maxLength={64} placeholder="0000000000000000000000000000000000000000000000000000000000000000" onChange={updateTargetHash}/>
         <br/><br/>
         <label>Target Work</label><br/>

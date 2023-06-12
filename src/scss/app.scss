@@ -4,10 +4,11 @@
 }
 
 body {
- background: #111;
+ background: #0a060d;
+//  background: #111;
  color: #ccc;
  font-size: 16px;
-  cursor: crosshair;
+ // cursor: crosshair;
 }
 
 // default stuff
@@ -131,7 +132,7 @@ input {
 .logo {
   display: flex;
   justify-content: center;
-  #construct-logo {
+  #construct-logo, #construct-holo {
     margin: 1rem 0;
     max-width: 20vh;
     line {
@@ -146,6 +147,10 @@ input {
       stroke: #646cff;
     }
   }
+  #construct-holo {
+    max-width: 40vh;
+    margin-top: -5vh;
+  }
 }
 
 .intro-title {
@@ -154,4 +159,7 @@ input {
 
 .highlight-purple {
   color: #646cff;
+}
+.highlight-pink {
+  color: #f33a5b;
 }

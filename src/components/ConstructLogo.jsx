@@ -1,3 +1,10 @@
+import { pickRandom } from '../libraries/utils'
+import c1 from '../assets/construct1.png'
+import c2 from '../assets/construct2.png'
+import c3 from '../assets/construct3.png'
+
+const holograms = [c1, c2, c3]
+
 export const ConstructLogo = () => {
   return (
     <svg id="construct-logo" xmlns="http://www.w3.org/2000/svg" viewBox="120 95 260 210">
@@ -11,4 +18,11 @@ export const ConstructLogo = () => {
         </g>
     </svg>
   )
+}
+
+export const ConstructHolo = () => {
+  const holo = pickRandom(holograms)
+  return (
+    <img id="construct-holo" src={holo} alt="construct hologram" />
+  ) 
 }
