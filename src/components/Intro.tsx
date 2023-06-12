@@ -35,7 +35,7 @@ const Intro = () => {
     <div id="intro">
       {/* <div className="logo"><img src={logo}/></div> */}
       <div className="logo"><ConstructHolo/></div>
-      <h1 className="intro-title"><span className="highlight-purple">オノセンダイ</span> <span className="highlight-pink">Cyberspace Construct Miner</span> v0.1</h1>
+      <h1 className="intro-title"><span className="highlight-purple jp alone">オノセンダイ</span> <span className="highlight-pink">Cyberspace Construct Miner</span> v0.1</h1>
       <p>
         Constructs are ownable plots of 3D space in Cyberspace that are 
         obtained by mining. This miner is an easy way to get started. Once you 

@@ -1,6 +1,8 @@
+@import url(https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap);
+
 * {
  box-sizing: border-box;
- font-family: monospace;
+ font-family: 'Share Tech Mono', monospace;
 }
 
 body {
@@ -162,4 +164,13 @@ input {
 }
 .highlight-pink {
   color: #f33a5b;
+}
+
+.alone {
+  display: block;
+  width: 100%;
+}
+
+.jp {
+  font-family: monospace;
 }
