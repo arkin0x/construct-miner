@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom'
 import { NostrIdentity } from './types/NostrIdentity'
 import { IdentityContext } from "./components/IdentityContext"
 import Home from './components/Home'
-import Miner from './components/Miner'
+import MinerPage from './components/MinerPage'
 import { defaultProfile } from './libraries/Nostr'
 
 function App() {
@@ -30,7 +30,7 @@ function App() {
       <IdentityContext.Provider value={{identity, setIdentityHandler}}>
         <Routes>
           <Route path="/" element={<Home/>}/>
-          <Route path="/miner" element={<Miner/>}/>
+          <Route path="/miner" element={<MinerPage/>}/>
         </Routes>
       </IdentityContext.Provider>
     </div>

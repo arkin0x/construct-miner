@@ -18,7 +18,7 @@ def summation(n):
         return n + summation(n - 1)
 
 def size(pow):
-    return math.floor(summation(pow) ** (1 + pow / 32))
+    return math.floor(summation(pow) ** (pow/32))# ** (1 + pow / 32))
 
 # Table header
 header_format = "{:<9} | {:<26} | {:<26}"
