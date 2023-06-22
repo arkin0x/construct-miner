@@ -1,39 +1,17 @@
 import { useContext, useEffect, useState } from "react"
-import { NostrIdentityContext } from "../types/NostrIdentity"
 import { IdentityContext } from "./IdentityContext"
+import { NostrIdentityContext } from "../types/NostrIdentity"
 import { getMyProfile } from "../libraries/Nostr"
+import { validateHash } from "../libraries/Hash"
 import { MinerIntro } from "./MinerIntro"
-import { MinerController } from "./MinerController"
+import { Miner } from "./MinerController"
 import MyConstructs from "./MyConstructs"
-
-type ConstructMinerMessageReceive = {
-  status?: string,
-  highestWork: number,
-  highestWorkNonce: number,
-  highestCreatedAt: number,
-  latestWork?: number,
-  latestNonce?: number,
-}
-
-type ConstructMinerMessageSend = {
-  command: 'startMining' | 'stopMining',
-  data?: {
-    pubkey: string,
-    targetHex: string,
-    targetWork: number,
-  }
-}
-
-const evaluateWork = function(work: ConstructMinerMessageReceive) {
-  console.log(work)
-  // if (work >= targetWork) {
-  //   worker.terminate();
-  //   console.log('Mining finished');
-  // }
-}
 
 const MinerPage = () => {
   const { identity, setIdentityHandler } = useContext<NostrIdentityContext>(IdentityContext)
+  const [ targetHash, setTargetHash ] = useState<string>('')
+  const [ targetWork, setTargetWork ] = useState<number>(10)
+  const [ validTargetHash, setValidTargetHash ] = useState<boolean>(false)
 
   // retrieve profile meta and save to context.
   useEffect(() => {
@@ -51,6 +29,23 @@ const MinerPage = () => {
     loadProfile()
   }, [])
 
+  const updateTargetHash = (e: React.KeyboardEvent<HTMLInputElement> | React.ChangeEvent<HTMLInputElement>) => {
+    const newTargetHash = e.currentTarget.value.trim()
+    if (validateHash(newTargetHash)) {
+      setTargetHash(newTargetHash)
+      setValidTargetHash(true)
+      console.log('updated hash target:',newTargetHash)
+    } else {
+      setValidTargetHash(false)
+    }
+  }
+
+  const updateTargetWork = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('update work target: ', e.currentTarget.value)
+    setTargetWork(parseInt(e.currentTarget.value))
+  }
+
+
   // render stuff
   const inputTargetHashClass = ['input-hash', validTargetHash ? 'valid' : 'invalid'].join(' ')
 
@@ -64,7 +59,7 @@ const MinerPage = () => {
         <label>Target Work</label><br/>
         <input className={'input'} type="number" max={256} min={1} defaultValue={10} onChange={updateTargetWork}/>
 
-        <MinerController/>
+        { validTargetHash ? <Miner targetHex={targetHash} targetWork={targetWork}/> : null }
         
       </div>
       <MyConstructs/>

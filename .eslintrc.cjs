@@ -9,6 +9,7 @@ module.exports = {
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   plugins: ['react-refresh'],
   rules: {
+    'semi': ['error', 'never'], // https://eslint.org/docs/latest/rules/semi
     'react-refresh/only-export-components': 'warn',
   },
 }

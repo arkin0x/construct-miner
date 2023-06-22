@@ -1,27 +1,30 @@
 import { encoder, hexToUint8, getConstructProofOfWork } from "../libraries/Hash"
 import { digest } from "@chainsafe/as-sha256"
-// import { serializeEvent } from "nostr-tools"
+import { encode } from "@webassemblyjs/utf8"
+import { serializeEvent } from "nostr-tools"
 // import { constructSize } from "../assets/pow-table";
 
-function serializeEvent(event) {
-  return JSON.stringify([
-    0,
-    event.pubkey,
-    event.created_at,
-    event.kind,
-    event.tags,
-    event.content
-  ]);
-}
 
-let active = false;
+/**
+ * ConstructMiner.worker.js
+ * 1. receive message from main thread
+ * 2. set starting nonce locally, set target work locally
+ * 3. start mining loop
+ * 3a. splice current nonce into serialized event
+ * 3b. encode serialized event
+ * 3c. digest encoded event
+ * 3d. get construct proof of work
+ * 4. if work is higher than current highest work, update highest work and send digest and completed work to main thread
+ */
+
+let active = false
 
 self.onmessage = function(message) {
-  const { command, data } = message.data;
+  const { command, data } = message.data
   switch (command) {
     case 'startMining':
       active = true
-      initiateMining(data.pubkey, data.targetHex, data.targetWork)
+      initiateMining(data)
       break
     case 'stopMining':
       active = false
@@ -29,7 +32,63 @@ self.onmessage = function(message) {
   }
 }
 
-const CHUNK_SIZE = 100_000
+
+function initiateMining(data){
+  let { event, serializedEvent, targetWork, targetHexBytes, nonce, createdAt, batch } = data
+
+  let highestWork = 0
+  
+  function mine() {
+
+    while(nonce < batch){
+      // splice current nonce into serialized event
+      let e_string = updateNonce(serializedEvent, nonce)
+      let e_bin = encode(e)
+      e_bin = digest(e_bin)
+
+      let work = getConstructProofOfWork(e_bin, targetHexBytes)
+
+      if (work > highestWork) {
+        highestWork = work
+        // send highest work to main thread
+        reportHighestWork(work, nonce, e_bin)
+      }
+      // increment nonce
+      nonce++
+    }
+
+    if (nonce === batch){
+      batchComplete()
+    }
+  }
+}
+
+function batchComplete(){
+  postMessage({
+    status: 'batch complete',
+    data: null,
+  })
+}
+
+function reportHighestWork(work, nonce, digest){
+  postMessage({
+    status: 'newhigh',
+    data: {
+      work, nonce, digest
+    },
+  })
+}
+
+function updateNonce(serializedEvent, nonce) {
+  const nonceTag = '"nonce","'
+  const nonceStart = serializedEvent.indexOf(nonceTag) + nonceTag.length
+  const nonceEnd = serializedEvent.indexOf('"', nonceStart)
+  if (nonceStart === -1 || nonceEnd === -1) {
+      return serializedEvent // nonce not found, return original
+  }
+  return serializedEvent.substring(0, nonceStart) + nonce + serializedEvent.substring(nonceEnd)
+}
+
 
 function initiateMining(pubkey, targetHex, targetWork = 10) {
   let highestWork = 0
@@ -42,7 +101,7 @@ function initiateMining(pubkey, targetHex, targetWork = 10) {
   
   function mineChunk(){
     while (active && highestWork < targetWork && chunk < CHUNK_SIZE) {
-      const result = mine(pubkey, nonce, targetUint8, targetHex, created_at);
+      const result = mine(pubkey, nonce, targetUint8, targetHex, created_at)
 
       if (result > highestWork) {
         highestWork = result;
@@ -100,38 +159,3 @@ function mine(pubkey, nonce, targetBinary, targetHex, created_at) {
 
 
 
-
-// self.onmessage = function(event) {
-//   const { command, data } = event.data;
-//   switch (command) {
-//     case 'startMining':
-//       initiateMining(data.pubkey, data.targetHex, data.targetWork);
-//       break;
-//     case 'stopMining':
-//       // Stop mining
-//     // Add more commands if needed
-//   }
-// };
-
-// function initiateMining(pubkey, targetHex, targetWork = 10) {
-//   let highestWork = 0;
-//   let highestWorkNonce = 0;
-//   let nonce = 0;
-//   let targetUint8 = hexToUint8(targetHex);
-//   mine(pubkey, nonce, targetUint8, targetWork, highestWork, highestWorkNonce);
-// }
-
-// function mine(pubkey, nonce, target, targetWork, highestWork, highestWorkNonce) {
-//   let result = work(pubkey, nonce, target);
-//   if (result > highestWork) {
-//     highestWork = result;
-//     highestWorkNonce = nonce;
-//   }
-//   nonce++;
-//   if (highestWork < targetWork) {
-//     // Post a message back to the main script
-//     self.postMessage({ highestWork, highestWorkNonce });
-//     setTimeout(() => mine(pubkey, nonce, target, targetWork, highestWork, highestWorkNonce), 0);
-//   }
-// }
-// // ... rest of your code for mining
