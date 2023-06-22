@@ -1,6 +1,8 @@
 import { digest } from "@chainsafe/as-sha256"
 import { encode } from "@webassemblyjs/utf8/lib/encoder.js"
 
+export const encoder = new TextEncoder()
+
 export function validateHash(value: string): boolean {
   if (value && value.length === 64 && value.match(/^[0-9a-fA-F]+$/)) {
     return true

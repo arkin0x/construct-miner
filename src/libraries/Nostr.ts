@@ -10,7 +10,6 @@ export const defaultRelays = [
   'wss://relay.orangepill.dev/',
   'wss://nostr.bitcoiner.social/',
   'wss://nostr.plebchain.org/',
-  'wss://puravida.nostr.land/',
   'wss://nos.lol/',
   'wss://relay.snort.social/',
   'wss://relay.devstr.org/',

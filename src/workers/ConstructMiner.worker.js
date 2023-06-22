@@ -1,6 +1,7 @@
 import { getConstructProofOfWork } from "../libraries/Hash"
 import { digest } from "@chainsafe/as-sha256"
-import { encode } from "@webassemblyjs/utf8/lib/encoder.js"
+// import { encode } from "@webassemblyjs/utf8/lib/encoder.js"
+import { encoder } from "../libraries/Hash"
 // import { constructSize } from "../assets/pow-table";
 
 
@@ -39,14 +40,17 @@ function initiateMining(data){
   console.log(data)
   let { serializedEvent, targetWork, targetHexBytes, nonce, createdAt, batch } = data
 
+  let batchSize = batch
   highestWork = 0
 
   function mine() {
 
-    while(nonce < batch){
+    let start = performance.now()
+
+    while(nonce < batchSize && active){
       // splice current nonce into serialized event
       let e_string = updateNonce(serializedEvent, nonce)
-      let e_bin = encode(e_string)
+      let e_bin = encoder.encode(e_string)
       e_bin = digest(e_bin)
 
       let work = getConstructProofOfWork(e_bin, targetHexBytes)
@@ -68,22 +72,38 @@ function initiateMining(data){
       }
       // increment nonce
       nonce++
+      e_string = null
+      e_bin = null
     }
 
-    if (nonce === batch){
-      batchComplete()
-    }
+    let end = performance.now()
 
-    mine()
+    batchComplete(end-start)
+
+    // ready for next batch
+    batchSize += batch 
+    setTimeout(mine, 1000 * 10)
   }
 
   mine()
 }
 
-function batchComplete(){
+function batchComplete(duration){
   postMessage({
-    status: 'batch complete',
-    data: null,
+    status: 'batchcomplete',
+    data: {
+      duration,
+      perf: Object.keys(performance)
+    },
+  })
+}
+
+function reportHeartbeat(work, nonce, createdAt, duration){
+  postMessage({
+    status: 'heartbeat',
+    data: {
+      work, nonce, createdAt, duration
+    },
   })
 }
 
@@ -105,4 +125,9 @@ function updateNonce(serializedEvent, nonce) {
   }
   return serializedEvent.substring(0, nonceStart) + nonce + serializedEvent.substring(nonceEnd)
 }
+
+// // hyperoptimized version of commented-out above updateNonce
+// function updateNonce(serializedEvent, nonce) {
+//   return serializedEvent.substring(0, serializedEvent.indexOf('"nonce","') + 11) + nonce + serializedEvent.substring(serializedEvent.indexOf('"', serializedEvent.indexOf('"nonce","') + 11))
+// }
 

@@ -68,6 +68,9 @@ export const Miner = ({targetHex, targetWork}) => {
       case 'newhigh':
         console.log('construct mining new high:',data)
         break
+      case 'heartbeat':
+        console.log('construct mining heartbeat:',data)
+        break
       case 'batchcomplete':
         console.log('construct mining batch complete:',data)
         evaluateWork(data)

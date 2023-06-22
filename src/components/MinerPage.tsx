@@ -10,7 +10,7 @@ import MyConstructs from "./MyConstructs"
 const MinerPage = () => {
   const { identity, setIdentityHandler } = useContext<NostrIdentityContext>(IdentityContext)
   const [ targetHash, setTargetHash ] = useState<string>('')
-  const [ targetWork, setTargetWork ] = useState<number>(10)
+  const [ targetWork, setTargetWork ] = useState<number>(50)
   const [ validTargetHash, setValidTargetHash ] = useState<boolean>(false)
 
   // retrieve profile meta and save to context.
@@ -57,7 +57,7 @@ const MinerPage = () => {
         <input className={inputTargetHashClass} type="text" maxLength={64} placeholder="0000000000000000000000000000000000000000000000000000000000000000" onChange={updateTargetHash}/>
         <br/><br/>
         <label>Target Work</label><br/>
-        <input className={'input'} type="number" max={256} min={1} defaultValue={10} onChange={updateTargetWork}/>
+        <input className={'input'} type="number" max={256} min={1} defaultValue={50} onChange={updateTargetWork}/>
 
         { validTargetHash ? <Miner targetHex={targetHash} targetWork={targetWork}/> : null }
         
