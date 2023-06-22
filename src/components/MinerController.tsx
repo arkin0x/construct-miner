@@ -26,10 +26,10 @@ function serializeEvent(event: UnsignedEvent): string {
     event.kind,
     event.tags,
     event.content
-  ]);
+  ])
 }
 
-export const Miner = ({targetHex: string, targetWork: number}) => {
+export const Miner = ({targetHex, targetWork}) => {
   const { identity } = useContext<NostrIdentityContext>(IdentityContext)
   const [ workerInstance, setWorkerInstance ] = useState<Worker|null>(null)
   const [ miningActive, setMiningActive ] = useState<boolean>(false)
@@ -37,7 +37,6 @@ export const Miner = ({targetHex: string, targetWork: number}) => {
   const [ miningEndTime, setMiningEndTime ] = useState<number>(0)
   const [ nonce, setNonce ] = useState<number>(0)
   const [ createdAt, setCreatedAt ] = useState<number>(+new Date())
-  const [ encoder ] = useState<TextEncoder>(new TextEncoder())
 
   // set up worker and listener
   useEffect(() => {
@@ -54,6 +53,7 @@ export const Miner = ({targetHex: string, targetWork: number}) => {
     switch (status) {
       case 'complete':
         console.log('construct mined:',data)
+        stopMining()
         break
       case 'stopped':
         console.log('construct mining stopped')
@@ -67,6 +67,7 @@ export const Miner = ({targetHex: string, targetWork: number}) => {
         break
       case 'newhigh':
         console.log('construct mining new high:',data)
+        break
       case 'batchcomplete':
         console.log('construct mining batch complete:',data)
         evaluateWork(data)
@@ -78,7 +79,7 @@ export const Miner = ({targetHex: string, targetWork: number}) => {
 
   // receive new work from worker and evaluate
   const evaluateWork = (data: object) => {
-    console.log('evaluate work:', data)
+    console.log('TODO evaluate work:', data)
   }
 
   // worker functions
@@ -106,7 +107,7 @@ export const Miner = ({targetHex: string, targetWork: number}) => {
     postMessageToWorker({
       command: 'startMining',
       data: {
-        event: serializedEvent,
+        serializedEvent,
         targetWork,
         targetHexBytes,
         nonce,
