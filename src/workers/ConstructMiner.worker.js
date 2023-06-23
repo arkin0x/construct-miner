@@ -1,9 +1,7 @@
 import { getConstructProofOfWork } from "../libraries/Hash"
 import { digest } from "@chainsafe/as-sha256"
-// import { encode } from "@webassemblyjs/utf8/lib/encoder.js"
-import { encoder } from "../libraries/Hash"
+import { incrementNonceBuffer } from "../libraries/Miner"
 // import { constructSize } from "../assets/pow-table";
-
 
 /**
  * ConstructMiner.worker.js
@@ -19,79 +17,64 @@ import { encoder } from "../libraries/Hash"
 
 let active = false
 let highestWork = 0
+let hash = null
+let work = null
+let start = null
   
-
 self.onmessage = function(message) {
   const { command, data } = message.data
   switch (command) {
-    case 'startMining':
+    case 'startmining':
       active = true
       initiateMining(data)
       break
-    case 'stopMining':
+    case 'stopmining':
       active = false
       break
   }
 }
 
-
 function initiateMining(data){
-  console.log(data)
-  let { serializedEvent, targetWork, targetHexBytes, nonce, createdAt, batch } = data
+  // let { serializedEvent, targetWork, targetHexBytes, nonce, createdAt, batch } = data
+  let { nonceStart, nonceBounds, binaryEvent, binaryTarget, batch, createdAt, targetWork } = data
 
+  let nonce = nonceStart
   let batchSize = batch
   highestWork = 0
 
   function mine() {
 
-    let start = performance.now()
+    start = performance.now()
 
     while(nonce < batchSize && active){
-      // splice current nonce into serialized event
-      let e_string = updateNonce(serializedEvent, nonce)
-      let e_bin = encoder.encode(e_string)
-      e_bin = digest(e_bin)
 
-      let work = getConstructProofOfWork(e_bin, targetHexBytes)
+      binaryEvent = incrementNonceBuffer(binaryEvent, nonceBounds[0], nonceBounds[1])
+      nonce++
+      hash = digest(binaryEvent)
+      work = getConstructProofOfWork(hash, binaryTarget)
 
       if (work > highestWork) {
         highestWork = work
         // send highest work to main thread
-        reportHighestWork(work, nonce, createdAt, e_bin)
+        reportHighestWork(work, nonce, createdAt, hash)
         if (work >= targetWork) {
           // send completed work to main thread
           postMessage({
             status: 'complete',
             data: {
-              work, nonce, createdAt, e_bin 
+              work, nonce, createdAt, hash 
             },
           })
           return
         }
       }
       if (nonce % 100_000 === 0){
-        reportHeartbeat(work, nonce, createdAt, performance.now()-start)
+        reportHeartbeat(highestWork, nonce, createdAt, nonce-nonceStart)
       }
-      // increment nonce
-      nonce++
-      e_string = null
-      e_bin = null
     }
 
-    let end = performance.now()
-
-    batchComplete(end-start)
-
-    // ready for next batch
-    batchSize += batch 
-    postMessage({status: 'cooldown start', data: null })
-    setTimeout(() => {
-      postMessage({
-        status: 'cooldown complete',
-        data: null
-      })
-      mine()
-    }, 1000 * 30)
+    batchComplete(performance.now()-start)
+    active = false
   }
 
   mine()
@@ -102,7 +85,6 @@ function batchComplete(duration){
     status: 'batchcomplete',
     data: {
       duration,
-      perf: Object.keys(performance)
     },
   })
 }
