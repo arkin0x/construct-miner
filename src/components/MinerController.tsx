@@ -115,7 +115,7 @@ export const Miner = ({targetHex, targetWork}) => {
         targetHexBytes,
         nonce,
         createdAt,
-        batch: 1_000_000,
+        batch: 5_000_000,
       }
     })
   }

@@ -22,7 +22,6 @@ let highestWork = 0
   
 
 self.onmessage = function(message) {
-  console.log(message)
   const { command, data } = message.data
   switch (command) {
     case 'startMining':
@@ -70,6 +69,9 @@ function initiateMining(data){
           return
         }
       }
+      if (nonce % 100_000 === 0){
+        reportHeartbeat(work, nonce, createdAt, performance.now()-start)
+      }
       // increment nonce
       nonce++
       e_string = null
@@ -82,7 +84,14 @@ function initiateMining(data){
 
     // ready for next batch
     batchSize += batch 
-    setTimeout(mine, 1000 * 10)
+    postMessage({status: 'cooldown start', data: null })
+    setTimeout(() => {
+      postMessage({
+        status: 'cooldown complete',
+        data: null
+      })
+      mine()
+    }, 1000 * 30)
   }
 
   mine()
