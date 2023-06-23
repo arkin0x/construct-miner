@@ -129,7 +129,7 @@ export const Miner = ({targetHex, targetWork}) => {
 
   const stopMining = () => {
     postMessageToWorkers({
-      command: 'stopMining',
+      command: 'stopmining',
     })
     setMiningActive(false)
   }

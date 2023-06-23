@@ -109,19 +109,3 @@ function reportHighestWork(workerNumber, work, nonce, createdAt, e_bin){
     },
   })
 }
-
-function updateNonce(serializedEvent, nonce) {
-  const nonceTag = '"nonce","'
-  const nonceStart = serializedEvent.indexOf(nonceTag) + nonceTag.length
-  const nonceEnd = serializedEvent.indexOf('"', nonceStart)
-  if (nonceStart === -1 || nonceEnd === -1) {
-      return serializedEvent // nonce not found, return original
-  }
-  return serializedEvent.substring(0, nonceStart) + nonce + serializedEvent.substring(nonceEnd)
-}
-
-// // hyperoptimized version of commented-out above updateNonce
-// function updateNonce(serializedEvent, nonce) {
-//   return serializedEvent.substring(0, serializedEvent.indexOf('"nonce","') + 11) + nonce + serializedEvent.substring(serializedEvent.indexOf('"', serializedEvent.indexOf('"nonce","') + 11))
-// }
-
