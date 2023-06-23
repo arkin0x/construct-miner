@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react"
 import { hexToBytes } from "@noble/hashes/utils"
 import { IdentityContext } from "./IdentityContext"
 import { NostrIdentityContext } from "../types/NostrIdentity"
-import { MinerMessage, WORKER_COUNT, BATCH_SIZE, serializeEvent, getNonceBounds, convertNumberToUint8Array, convertUint8ArrayToNumber } from "../libraries/Miner"
+import { MinerMessage, WORKER_COUNT, BATCH_SIZE, serializeEvent, getNonceBounds, calculateHashrate } from "../libraries/Miner"
 import { encoder } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
 
@@ -49,7 +49,7 @@ export const Miner = ({targetHex, targetWork}) => {
         setMiningActive(false)
         break
       case 'heartbeat':
-        console.log('construct mining heartbeat:',data)
+        console.log('construct mining heartbeat:',data,'hashrate: '+calculateHashrate(data.duration)+' H/s')
         break
       case 'newhigh':
         console.log('construct mining new high:',data)
@@ -66,7 +66,7 @@ export const Miner = ({targetHex, targetWork}) => {
 
   // receive new work from worker and evaluate
   const evaluateWork = (data: object) => {
-    console.log('TODO evaluate work:', data)
+    // console.log('TODO evaluate work:', data)
   }
 
   // worker functions

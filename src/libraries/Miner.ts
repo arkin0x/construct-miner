@@ -101,3 +101,9 @@ export const incrementNonceBuffer = (buffer: Uint8Array, startIndex: number, end
   }
   return buffer
 }
+
+export const calculateHashrate = (duration: number): number => {
+  // we know that this duration is milliseconds to do 1 million hashes.
+  // convert into a hashes per second number.
+  return Math.floor(1_000_000 / (duration / 1_000))
+}

@@ -20,6 +20,7 @@ let highestWork = 0
 let hash = null
 let work = null
 let start = null
+let hashDurationBegin = null
   
 self.onmessage = function(message) {
   const { command, data } = message.data
@@ -36,7 +37,7 @@ self.onmessage = function(message) {
 
 function initiateMining(data){
   // let { serializedEvent, targetWork, targetHexBytes, nonce, createdAt, batch } = data
-  let { nonceStart, nonceBounds, binaryEvent, binaryTarget, batch, createdAt, targetWork } = data
+  let { workerNumber, nonceStart, nonceBounds, binaryEvent, binaryTarget, batch, createdAt, targetWork } = data
 
   let nonce = nonceStart
   let batchSize = batch
@@ -45,6 +46,7 @@ function initiateMining(data){
   function mine() {
 
     start = performance.now()
+    hashDurationBegin = start
 
     while(nonce < batchSize && active){
 
@@ -56,53 +58,54 @@ function initiateMining(data){
       if (work > highestWork) {
         highestWork = work
         // send highest work to main thread
-        reportHighestWork(work, nonce, createdAt, hash)
+        reportHighestWork(workerNumber, work, nonce, createdAt, hash)
         if (work >= targetWork) {
           // send completed work to main thread
           postMessage({
             status: 'complete',
             data: {
-              work, nonce, createdAt, hash 
+              workerNumber, work, nonce, createdAt, hash 
             },
           })
           return
         }
       }
-      if (nonce % 100_000 === 0){
-        reportHeartbeat(highestWork, nonce, createdAt, nonce-nonceStart)
+      if (nonce % 1_000_000 === 0){
+        reportHeartbeat(workerNumber, highestWork, nonce, createdAt, performance.now()-hashDurationBegin)
+        hashDurationBegin = performance.now()
       }
     }
 
-    batchComplete(performance.now()-start)
+    batchComplete(workerNumber, work, nonce, createdAt, hash, performance.now()-start)
     active = false
   }
 
   mine()
 }
 
-function batchComplete(duration){
+function batchComplete(workerNumber, work, nonce, createdAt, hash, duration){
   postMessage({
     status: 'batchcomplete',
     data: {
-      duration,
+      workerNumber, work, nonce, createdAt, hash, duration
     },
   })
 }
 
-function reportHeartbeat(work, nonce, createdAt, duration){
+function reportHeartbeat(workerNumber, work, nonce, createdAt, duration){
   postMessage({
     status: 'heartbeat',
     data: {
-      work, nonce, createdAt, duration
+      workerNumber, work, nonce, createdAt, duration
     },
   })
 }
 
-function reportHighestWork(work, nonce, createdAt, e_bin){
+function reportHighestWork(workerNumber, work, nonce, createdAt, e_bin){
   postMessage({
     status: 'newhigh',
     data: {
-      work, nonce, createdAt, e_bin
+      workerNumber, work, nonce, createdAt, e_bin
     },
   })
 }
