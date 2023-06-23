@@ -1,38 +1,21 @@
-import { useState, useEffect } from 'react'
-import { Routes, Route, useNavigate } from 'react-router-dom'
-import { NostrIdentity } from './types/NostrIdentity'
-import { IdentityContext } from "./components/IdentityContext"
-import Home from './components/Home'
-import MinerPage from './components/MinerPage'
-import { defaultProfile } from './libraries/Nostr'
+import { Routes, Route } from 'react-router-dom'
+import { IdentityProvider } from './providers/IdentityProvider.tsx'
+import { Home } from './components/Home'
+import { Login } from './components/Login'
+import './scss/App.scss'
+import MinerPage from './components/MinerPage.tsx'
 
 function App() {
 
-  const navigate = useNavigate();
-
-  const [identity, setIdentity] = useState<NostrIdentity>(defaultProfile)
-
-  const setIdentityHandler = (id: NostrIdentity) => {
-    const profile = Object.assign({}, defaultProfile, id)
-    setIdentity(profile)
-  }
-
-  // This effect will be called once the App component is mounted, thus it will navigate to the root
-  useEffect(() => {
-    if (identity.pubkey === defaultProfile.pubkey) {
-      navigate('/')
-    }
-  }, [identity])
-
-
   return (
     <div id="app">
-      <IdentityContext.Provider value={{identity, setIdentityHandler}}>
-        <Routes>
-          <Route path="/" element={<Home/>}/>
-          <Route path="/miner" element={<MinerPage/>}/>
-        </Routes>
-      </IdentityContext.Provider>
+        <IdentityProvider>
+          <Routes>
+            <Route path="/" element={<Home/>}/>
+            <Route path="/login" element={<Login/>}/>
+            <Route path="/miner" element={<MinerPage/>}/>
+          </Routes>
+        </IdentityProvider>
     </div>
   )
 }

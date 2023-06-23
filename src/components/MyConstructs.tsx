@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from 'react'
 import { Event } from "nostr-tools"
-import { NostrIdentityContext } from "../types/NostrIdentity";
-import { IdentityContext } from "./IdentityContext";
+import { IdentityContextType } from "../types/IdentityType"
+import { IdentityContext } from "../providers/IdentityProvider"
 import { getAll } from '../libraries/Nostr'
 // My Constructs
 
 const MyConstructs = () => {
-  const { identity } = useContext<NostrIdentityContext>(IdentityContext);
+  const { identity } = useContext<IdentityContextType>(IdentityContext)
 
   const [ constructs, setConstructs ] = useState<Event[]>([])
   const [ foundNone, setFoundNone ] = useState<boolean>(false)

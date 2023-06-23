@@ -1,10 +1,10 @@
 import { useContext } from "react"
 import { ConstructLogo } from './ConstructLogo'
-import { NostrIdentityContext } from "../types/NostrIdentity"
-import { IdentityContext } from "./IdentityContext"
+import { IdentityContextType } from "../types/IdentityType"
+import { IdentityContext } from "../providers/IdentityProvider"
 
 export const MinerIntro = () => {
-  const { identity } = useContext<NostrIdentityContext>(IdentityContext)
+  const { identity } = useContext<IdentityContextType>(IdentityContext)
   return (
     <>
       <div className="logo"><ConstructLogo/></div>

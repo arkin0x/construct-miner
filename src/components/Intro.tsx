@@ -1,10 +1,6 @@
-import { useNavigate } from 'react-router-dom'
-import { NostrIdentityContext } from '../types/NostrIdentity'
-import { IdentityContext } from "./IdentityContext";
 import { NostrWindow } from '../types/NostrWindow'
-import { useContext } from 'react'
-import { defaultProfile } from '../libraries/Nostr';
 import { ConstructHolo } from './ConstructLogo'
+import { SignInButton } from './SignInButton'
 // import logo from '../assets/construct.svg'
 
 // This declaration allows us to access window.nostr without TS errors.
@@ -17,18 +13,8 @@ declare global {
 
 const Intro = () => {
 
-  const { setIdentityHandler } = useContext<NostrIdentityContext>(IdentityContext);
-  const navigate = useNavigate()
-
   const viewSpec = () => {
     window.open('https://github.com/arkin0x/cyberspace', '_blank')
-  }
-
-  async function signIn() {
-    const pubkey = await window.nostr?.getPublicKey()
-    const profile = Object.assign({}, defaultProfile, {pubkey})
-    setIdentityHandler(profile)
-    navigate('/miner')
   }
 
   return (
@@ -43,7 +29,7 @@ const Intro = () => {
         interactive 3D objects (coming soon).
       </p>
       <div className="actions">
-        <button onClick={signIn}>Sign in with Extension to Start Mining</button>
+        <SignInButton/>
         <button onClick={viewSpec}>Cyberspace Spec</button>
       </div>
     </div>

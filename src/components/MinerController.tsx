@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react"
 import { hexToBytes } from "@noble/hashes/utils"
-import { IdentityContext } from "./IdentityContext"
-import { NostrIdentityContext } from "../types/NostrIdentity"
+import { IdentityContextType } from "../types/IdentityType"
+import { IdentityContext } from "../providers/IdentityProvider"
 import { MinerMessage, WORKER_COUNT, BATCH_SIZE, serializeEvent, getNonceBounds, calculateHashrate } from "../libraries/Miner"
 import { encoder } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
@@ -16,7 +16,7 @@ import Worker from '../workers/ConstructMiner.worker?worker'
  */
 
 export const Miner = ({targetHex, targetWork}) => {
-  const { identity } = useContext<NostrIdentityContext>(IdentityContext)
+  const { identity } = useContext<IdentityContextType>(IdentityContext)
   // const [ workerInstance, setWorkerInstance ] = useState<Worker|null>(null)
   const [ miningActive, setMiningActive ] = useState<boolean>(false)
   const [ nonce, setNonce ] = useState<number>(0)
