@@ -1,0 +1,46 @@
+- need a way to notify miners to stop or of a new high so they won't report their new highs if it is lower than the highest from all workers. The while loop runs too tightly for the onmessage to interrupt, so I need to refactor it so every 500_000 iterationts it will schedule another loop with setTimeout(loop, 0). fixing this will also allow us to properly send the stop command and have it be obeyed because right now it isnt'.
+
+- need to verify that the modifications I am doing to the binaryEvent are correct.
+
+- validate this:
+
+{
+    "workerNumber": 4,
+    "work": 49,
+    "nonce": 112590282940550,
+    "createdAt": 1687559398287,
+    "hash": {
+        "0": 16,
+        "1": 130,
+        "2": 130,
+        "3": 82,
+        "4": 16,
+        "5": 144,
+        "6": 0,
+        "7": 13,
+        "8": 230,
+        "9": 181,
+        "10": 28,
+        "11": 5,
+        "12": 82,
+        "13": 52,
+        "14": 13,
+        "15": 28,
+        "16": 142,
+        "17": 5,
+        "18": 128,
+        "19": 4,
+        "20": 132,
+        "21": 74,
+        "22": 34,
+        "23": 12,
+        "24": 154,
+        "25": 145,
+        "26": 96,
+        "27": 40,
+        "28": 96,
+        "29": 35,
+        "30": 34,
+        "31": 66
+    }
+}

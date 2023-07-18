@@ -101,11 +101,11 @@ function reportHeartbeat(workerNumber, work, nonce, createdAt, duration){
   })
 }
 
-function reportHighestWork(workerNumber, work, nonce, createdAt, e_bin){
+function reportHighestWork(workerNumber, work, nonce, createdAt, hash){
   postMessage({
     status: 'newhigh',
     data: {
-      workerNumber, work, nonce, createdAt, e_bin
+      workerNumber, work, nonce, createdAt, hash
     },
   })
 }

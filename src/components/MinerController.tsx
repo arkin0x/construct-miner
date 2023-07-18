@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react"
 import { hexToBytes } from "@noble/hashes/utils"
 import { IdentityContextType } from "../types/IdentityType"
 import { IdentityContext } from "../providers/IdentityProvider"
-import { MinerMessage, WORKER_COUNT, BATCH_SIZE, serializeEvent, getNonceBounds, calculateHashrate } from "../libraries/Miner"
+import { MinerMessage, WORKER_COUNT, BATCH_SIZE, serializeEvent, getNonceBounds, calculateHashrate, convertNumberToUint8Array } from "../libraries/Miner"
 import { encoder } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
 
@@ -91,23 +91,16 @@ export const Miner = ({targetHex, targetWork}) => {
     const binaryEvent = encoder.encode(serializedEvent)
     const binaryTarget = hexToBytes(targetHex)
 
-    // postMessageToWorker({
-    //   command: 'startMining',
-    //   data: {
-    //     serializedEvent,
-    //     targetWork,
-    //     targetHexBytes,
-    //     nonce,
-    //     createdAt,
-    //     batch: nonce + BATCH_SIZE,
-    //   }
-    // })
-
     // dispatch a job to each worker where the nonce is incremented by the batch size
     // send the nonce, binaryEvent, binaryTarget, nonceBounds, and createdAt
-
     workers.forEach((w,i) => {
       const n = nonce + i * BATCH_SIZE
+
+      const nonceBuffer = convertNumberToUint8Array(n)
+
+      for ( let byte = 0; byte < 6; byte++ ) {
+        binaryEvent[nonceBounds[0] + byte] = nonceBuffer[byte] // replace nonce bytes in binary event
+      }
 
       const message = {
         command: "startmining",
@@ -124,7 +117,6 @@ export const Miner = ({targetHex, targetWork}) => {
       }
       w.postMessage(message)
     })
-    // setNonce(nonce + BATCH_SIZE * workers.length)
   }
 
   const stopMining = () => {
