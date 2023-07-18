@@ -1,4 +1,8 @@
-# Construct Miner
+<p align="center">
+  <img src="https://github.com/arkin0x/construct-miner/assets/99223753/e9037348-e281-4802-807d-c4c7ebe0e8a1" width="350" alt="Construct Miner logo" style="margin: 0 auto; display: block;"/>
+</p>
+
+# ONOSENDAI Construct Miner
 
 This is a convenient web interface to help people easily get started with claiming real-estate in [cyberspace](https://github.com/arkin0x/cyberspace#claiming-space-and-building-structures).
 
