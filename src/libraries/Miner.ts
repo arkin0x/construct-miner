@@ -1,11 +1,28 @@
 import { UnsignedEvent } from "nostr-tools"
 
+// a status response from the miner
+export type MinerStatus = "stopped" | "error" | "heartbeat" | "newhigh" | "batchcomplete" | "complete"
+
+// a message from the miner
 export type MinerMessage = {
-  command: string,
-  data?: any
+  status: MinerStatus,
+  data: {
+    workerNumber: number,
+    work: number,
+    nonce: number,
+    nonceBounds: Array<number>,
+    createdAt: number,
+    duration: number,
+    hash: Uint8Array,
+    binaryEvent: Uint8Array,
+  }
 }
 
-export type MinerResponse = "stopped" | "error" | "heartbeat" | "newhigh" | "complete"
+export type MinerCommandStatus = "startmining" | "stopmining"
+
+export type MinerCommand = {
+  command: MinerCommandStatus
+}
 
 export const WORKER_COUNT = 10
 // 6 bytes is 281474976710655, which is slightly less than the max size of a number in javascript that still fits nicely into a Uint8Array 6 elemenst long.
@@ -91,7 +108,7 @@ export const convertNumberToUint8Array = (num: number): Uint8Array => {
 
 export const incrementNonceBuffer = (buffer: Uint8Array, startIndex: number, endIndex: number): Uint8Array => {
   // go from right to left to update count, because the number is big-endian
-  for (let i = endIndex; i >= startIndex; i--) {
+  for (let i = endIndex-1; i >= startIndex; i--) {
     if (buffer[i] === 255) {
       buffer[i] = 0
     } else {

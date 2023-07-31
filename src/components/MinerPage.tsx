@@ -8,7 +8,7 @@ import MyConstructs from "./MyConstructs"
 
 const MinerPage = () => {
   const { identity } = useContext<IdentityContextType>(IdentityContext)
-  const [ targetHash, setTargetHash ] = useState<string>('')
+  const [ targetHash, setTargetHash ] = useState<string>('0000000000000000000000000000000000000000000000000000000000000000')
   const [ targetWork, setTargetWork ] = useState<number>(50)
   const [ validTargetHash, setValidTargetHash ] = useState<boolean>(false)
 
