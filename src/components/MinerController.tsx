@@ -3,8 +3,12 @@ import { hexToBytes } from "@noble/hashes/utils"
 import { IdentityContextType } from "../types/IdentityType"
 import { IdentityContext } from "../providers/IdentityProvider"
 import { MinerMessage, WORKER_COUNT, BATCH_SIZE, serializeEvent, getNonceBounds, calculateHashrate, convertNumberToUint8Array, MinerCommand } from "../libraries/Miner"
-import { encoder, decoder } from "../libraries/Hash"
+import { encoder, decoder, uint8ToHex } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
+import { UnsignedEvent, getEventHash, validateEvent, verifySignature } from "nostr-tools"
+import { signEvent } from "../libraries/NIP-07"
+import { UnpublishedConstructType } from "../types/Construct"
+import { UnpublishedConstruct } from "./Construct"
 
 /**
  * export start mining
@@ -22,16 +26,16 @@ type MinerProps = {
 
 export const Miner = ({targetHex, targetWork}: MinerProps) => {
   const { identity } = useContext<IdentityContextType>(IdentityContext)
-  // const [ workerInstance, setWorkerInstance ] = useState<Worker|null>(null)
   const [ miningActive, setMiningActive ] = useState<boolean>(false)
+  // nonce could be used to "resume" mining after a refresh; perhaps it would be loaded from localstorage, but this is not yet implemented.
   const [ nonce, setNonce ] = useState<number>(0)
-  const [ createdAt, setCreatedAt ] = useState<number>(Math.round(Date.now() / 1000))
   const [ workers, setWorkers ] = useState<Worker[]>([])
+  const [ constructs, setConstructs ] = useState<UnpublishedConstructType[]>([])
 
   // set up worker and listener
   useEffect(() => {
     const workers: Worker[] = []
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < WORKER_COUNT; i++) {
       const worker = new Worker()
       worker.onmessage = onWorkerResponse 
       workers.push(worker)
@@ -41,6 +45,20 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       workers.forEach(w => w.terminate())
     }
   }, [])
+    
+  // load constructs from localstorage on load
+  useEffect(() => {
+    const storedConstructs = localStorage.getItem('constructs')
+    if (storedConstructs) {
+      setConstructs(JSON.parse(storedConstructs))
+    }
+  }, [])
+
+  // when constructs is updated via updateConstructs, save to localstorage
+  const updateConstructs = (construct: UnpublishedConstructType) => {
+    setConstructs([...constructs, construct])
+    localStorage.setItem('constructs', JSON.stringify(constructs))
+  }
 
   const onWorkerResponse = (message: MessageEvent) => {
     const { status, data } = message.data as MinerMessage
@@ -71,14 +89,16 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
 
   // receive new work from worker and evaluate
   const evaluateWork = (msg: MinerMessage) => {
-    // save work to localStorage
-    // if work is better than current work, save to localStorage
-    // console.log('saving to localstorage',msg.data)
+    // we need to decode the rest of the message separately from the nonce bytes because the nonce bytes will be replaced with a replacement character (65533) when decoded as utf-8, which is incorrect
 
-    // debug nonce bytes
-    // we need to decode the rest of the message separately from the nonce bytes because the nonce bytes will be replaced with a replacement character (65533) when decoded as utf-8.
-
-    const { binaryEvent, nonceBounds } = msg.data
+    const { 
+      binaryEvent,
+      createdAt,
+      event,
+      hash,
+      nonceBounds,
+      work,
+    } = msg.data
 
     const prefix = binaryEvent.slice(0, nonceBounds[0])
     const nonceBytes = binaryEvent.slice(nonceBounds[0], nonceBounds[1])
@@ -93,16 +113,53 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       decodedNonceBytes.push(String.fromCharCode(b))
     })
 
-    console.log(decodedPrefix)
-    console.log(decodedNonceBytes)
-    console.log(decodedSuffix)
+    // console.log(decodedPrefix)
+    // console.log(decodedNonceBytes)
+    // console.log(decodedSuffix)
+    // console.log('///////////////////////////////////////////////////')
 
-    console.log('///////////////////////////////////////////////////')
+    // gather other data about the construct to show to user
 
-    const event = decoder.decode(msg.data.binaryEvent)
-    const nonceIndex = event.indexOf("\"nonce\",\"")
+    // work - the inverse hamming distance between the target and the hash of the event
 
-    // console.log(event.substring(nonceIndex+9, nonceIndex + 15).split('').map(c => c.charCodeAt(0)))
+    // replace nonce placeholder in event:
+
+    event.tags[0][1] = decodedNonceBytes.join('')
+
+    // make sure our hash is correct. If this throws, there is a fundamental error with the application.
+    const ours = uint8ToHex(hash)
+    const theirs = getEventHash(event)
+
+    if (ours !== theirs) {
+      console.log(ours,'ours')
+      console.log(theirs,'theirs')
+      throw new Error('hash mismatch')
+    } else {
+      // we will do this later actually
+      // event.id = ours
+      // event.sig = signEvent(event)
+    }
+
+    if (!validateEvent(event)){
+      console.log(event)
+      throw new Error('invalid event')
+    }
+    // if (!verifySignature(event)) {
+    //   console.log(event)
+    //   throw new Error('invalid signature')
+    // }
+
+    // all good
+
+    const construct: UnpublishedConstructType = {
+      readyForSignature: event,
+      workCompleted: work,
+      createdAt,
+      id: ours,
+    }
+
+    updateConstructs(construct)
+
   }
 
   // worker functions
@@ -114,6 +171,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
 
   const startMining = () => {
     setMiningActive(true)
+    const createdAt = Math.round(Date.now() / 1000)
     const nonceBytes = "\x00\x00\x00\x00\x00\x00"
     const event = {
       kind: 331,
@@ -145,14 +203,15 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       const message = {
         command: "startmining",
         data: {
-          workerNumber: i,
-          createdAt,
-          nonceStart: n,
-          nonceBounds,
+          batch: n + BATCH_SIZE,
           binaryEvent,
           binaryTarget,
-          batch: n + BATCH_SIZE,
+          createdAt,
+          event: event,
+          nonceBounds,
+          nonceStart: n,
           targetWork,
+          workerNumber: i,
         }
       }
       w.postMessage(message)
@@ -166,11 +225,17 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
     setMiningActive(false)
   }
 
+  const showConstructs = () => {
+    return constructs.map(c => {
+      return <UnpublishedConstruct key={c.id} construct={c} />
+    })
+  }
 
   return (
     <>
       <><br/><br/>{ miningActive ? <button onClick={stopMining}>Stop Mining 🛑</button> : <button onClick={startMining}>Start Mining ▶</button>}</>
       <hr/>
+      {showConstructs()}
     </>
   )
 

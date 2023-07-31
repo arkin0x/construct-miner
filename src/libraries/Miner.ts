@@ -7,14 +7,19 @@ export type MinerStatus = "stopped" | "error" | "heartbeat" | "newhigh" | "batch
 export type MinerMessage = {
   status: MinerStatus,
   data: {
-    workerNumber: number,
-    work: number,
+    batch: number,
+    binaryEvent: Uint8Array,
+    binaryTarget: Uint8Array,
+    createdAt: number,
+    duration?: number,
+    event: UnsignedEvent,
+    hash: Uint8Array,
     nonce: number,
     nonceBounds: Array<number>,
-    createdAt: number,
-    duration: number,
-    hash: Uint8Array,
-    binaryEvent: Uint8Array,
+    nonceStart: number,
+    targetWork: number,
+    work: number,
+    workerNumber: number,
   }
 }
 
