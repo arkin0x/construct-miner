@@ -114,8 +114,13 @@ export const convertNumberToUint8Array = (num: number): Uint8Array => {
 export const incrementNonceBuffer = (buffer: Uint8Array, startIndex: number, endIndex: number): Uint8Array => {
   // go from right to left to update count, because the number is big-endian
   for (let i = endIndex-1; i >= startIndex; i--) {
-    if (buffer[i] === 255) {
-      buffer[i] = 0
+    if (buffer[i] === 63) {
+      // we are using 16 UTF-8 symbols between decimal 48 and 63 (0-9, :, ;, <, =, >, ?)
+      // 16 nonce digits * 4 bits per digit = 64 bits of possible entropy, which is more than enough for a nonce, especially since the created_at will be incremented and serve as entropy too.
+      // wrap around if the symbol is 63 (?) and set to 48 (0)
+      buffer[i] = 48
+      // increment the next symbol to the left
+      buffer[i-1]++
     } else {
       buffer[i]++
       break

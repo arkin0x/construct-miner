@@ -172,49 +172,54 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
   const startMining = () => {
     setMiningActive(true)
     const createdAt = Math.round(Date.now() / 1000)
-    const nonceBytes = "\x00\x00\x00\x00\x00\x00"
+    const nonceBytes = "0000000000000000"
     const event = {
       kind: 331,
       created_at: createdAt,
-      tags: [["nonce","replace with nonce bytes",targetHex]],
+      tags: [["nonce",nonceBytes,targetHex]],
       content: '',
       pubkey: identity!.pubkey,
     }
     const serializedEvent = serializeEvent(event)
-    // we can't use JSON.stringify because it will escape the nonce bytes, so we have to add them after.
-    // binaryReadyEvent is ready to be converted to binary (Uint8Array)
-    const binaryReadyEvent = serializedEvent.replace("replace with nonce bytes", nonceBytes)
-    console.log({str:binaryReadyEvent})
-    const nonceBounds = getNonceBounds(binaryReadyEvent)
-    const binaryEvent = encoder.encode(binaryReadyEvent)
+    const nonceBounds = getNonceBounds(serializedEvent) // NOTE: These bounds would potentially be invalid if the seraialized event contains characters that are encoded to mulitple bytes in utf-8. This is not currently the case as constructs are pretty minimal, but it is something to be aware of.
+    const binaryEvent = encoder.encode(serializedEvent)
     const binaryTarget = hexToBytes(targetHex)
 
     // dispatch a job to each worker where the nonce is incremented by the batch size
     // send the nonce, binaryEvent, binaryTarget, nonceBounds, and createdAt
-    workers.forEach((w,i) => {
-      const n = nonce + i * BATCH_SIZE
+    workers.forEach((worker,index) => {
+      const workerNonce = index * BATCH_SIZE
 
-      const nonceBuffer = convertNumberToUint8Array(n)
+      // need to convert this worker's nonce into a Uint8Array representing characters 48-63
+      const nonce = workerNonce.toString(16).split('').map(c => {
+        return String.fromCharCode(parseInt(c,16) + 48)
+      }).join('')
+      // pad left so the resulting string is 16 characters
+      const padded = nonce.padStart(16,'0')
+      // convert the string to Uint8Array
+      const uint8 = encoder.encode(padded)
 
-      for ( let byte = 0; byte < 6; byte++ ) {
-        binaryEvent[nonceBounds[0] + byte] = nonceBuffer[byte] // replace nonce bytes in binary event
+      const workerBinaryEvent = binaryEvent.slice()
+
+      for ( let byte = 0; byte < 12; byte++ ) {
+        workerBinaryEvent[nonceBounds[0] + byte] = uint8[byte] // replace nonce bytes in binary event
       }
 
       const message = {
         command: "startmining",
         data: {
-          batch: n + BATCH_SIZE,
-          binaryEvent,
+          batch: workerNonce + BATCH_SIZE,
+          binaryEvent: workerBinaryEvent,
           binaryTarget,
           createdAt,
           event: event,
           nonceBounds,
-          nonceStart: n,
+          nonceStart: workerNonce,
           targetWork,
-          workerNumber: i,
+          workerNumber: index,
         }
       }
-      w.postMessage(message)
+      worker.postMessage(message)
     })
   }
 
