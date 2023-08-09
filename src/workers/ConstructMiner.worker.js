@@ -64,8 +64,7 @@ function initiateMining(data){
       hash = digest(binaryEvent)
       work = getConstructProofOfWork(hash, binaryTarget)
 
-      // if (work > highestWork) {
-      if( nonce < batch + 5000){
+      if (work > highestWork) {
         highestWork = work
         // send highest work to main thread
         reportHighestWork(workerNumber, work, nonce, binaryEvent, hash, data )
@@ -80,11 +79,10 @@ function initiateMining(data){
           return
         }
       }
-      // }
-      // if (nonce % 1_000_000 === 0){
-      //   reportHeartbeat(workerNumber, highestWork, nonce, createdAt, performance.now()-hashDurationBegin)
-      //   hashDurationBegin = performance.now()
-      // }
+      if (nonce % 1_000_000 === 0){
+        reportHeartbeat(workerNumber, highestWork, nonce, createdAt, performance.now()-hashDurationBegin)
+        hashDurationBegin = performance.now()
+      }
     }
 
     batchComplete(workerNumber, work, nonce, createdAt, hash, performance.now()-start)
