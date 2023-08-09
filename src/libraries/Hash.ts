@@ -1,5 +1,6 @@
 import { digest } from "@chainsafe/as-sha256"
 import { encode } from "@webassemblyjs/utf8/lib/encoder.js"
+import { bytesToHex } from "@noble/hashes/utils"
 
 export const encoder = new TextEncoder()
 export const decoder = new TextDecoder()
@@ -14,7 +15,7 @@ export function validateHash(value: string): boolean {
 export function hash(data: string): string {
   const encoded = encode(data)
   const hash = digest(encoded)
-  const hex = uint8ToHex(hash)
+  const hex = bytesToHex(hash)
   return hex
 }
 

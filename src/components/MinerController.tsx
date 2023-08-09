@@ -9,6 +9,7 @@ import { UnsignedEvent, getEventHash, validateEvent, verifySignature } from "nos
 import { signEvent } from "../libraries/NIP-07"
 import { UnpublishedConstructType } from "../types/Construct"
 import { UnpublishedConstruct } from "./Construct"
+import { bytesToHex } from "@noble/hashes/utils"
 
 /**
  * export start mining
@@ -114,8 +115,8 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
     })
 
     // console.log(decoder.decode(binaryEvent))
-    console.log(decodedNonceBytes.join(''))
     console.log('///////////////////////////////////////////////////')
+    console.log(decodedNonceBytes.join(''))
 
     // gather other data about the construct to show to user
 
@@ -126,14 +127,21 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
     event.tags[0][1] = decodedNonceBytes.join('')
 
     // make sure our hash is correct. If this throws, there is a fundamental error with the application.
-    const ours = uint8ToHex(hash)
+    const ours = bytesToHex(hash)
     const theirs = getEventHash(event)
 
+    /**
+     * FIXME:
+     * This is sus. When the hashes don't match, they ALWAYS differ by 0x10000000, meaning the second to last byte is always off by 1.
+     * Ours is using chainsafe's hashing library, theirs is using the hashing library from nostr-tools. 
+     * The other weird thing is that it doesn't always happen!
+     */
     if (ours !== theirs) {
       console.log(ours,'ours')
       console.log(theirs,'theirs')
       throw new Error('hash mismatch')
     } else {
+      console.log('all good, hashes match')
       // we will do this later actually
       // event.id = ours
       // event.sig = signEvent(event)
