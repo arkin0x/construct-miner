@@ -113,10 +113,9 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       decodedNonceBytes.push(String.fromCharCode(b))
     })
 
-    // console.log(decodedPrefix)
-    // console.log(decodedNonceBytes)
-    // console.log(decodedSuffix)
-    // console.log('///////////////////////////////////////////////////')
+    // console.log(decoder.decode(binaryEvent))
+    console.log(decodedNonceBytes.join(''))
+    console.log('///////////////////////////////////////////////////')
 
     // gather other data about the construct to show to user
 
@@ -131,9 +130,9 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
     const theirs = getEventHash(event)
 
     if (ours !== theirs) {
-      console.log(ours,'ours')
-      console.log(theirs,'theirs')
-      throw new Error('hash mismatch')
+      // console.log(ours,'ours')
+      // console.log(theirs,'theirs')
+      // throw new Error('hash mismatch')
     } else {
       // we will do this later actually
       // event.id = ours
@@ -188,6 +187,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
     // dispatch a job to each worker where the nonce is incremented by the batch size
     // send the nonce, binaryEvent, binaryTarget, nonceBounds, and createdAt
     workers.forEach((worker,index) => {
+      index+=9
       const workerNonce = index * BATCH_SIZE
 
       // need to convert this worker's nonce into a Uint8Array representing characters 48-63
@@ -208,7 +208,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       const message = {
         command: "startmining",
         data: {
-          batch: workerNonce + BATCH_SIZE,
+          batch: workerNonce + BATCH_SIZE - 1, // this is the end nonce for the worker
           binaryEvent: workerBinaryEvent,
           binaryTarget,
           createdAt,

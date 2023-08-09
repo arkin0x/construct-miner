@@ -50,7 +50,6 @@ function initiateMining(data){
   } = data
 
   let nonce = nonceStart
-  let batchSize = batch
   highestWork = 0
 
   function mine() {
@@ -58,17 +57,18 @@ function initiateMining(data){
     start = performance.now()
     hashDurationBegin = start
 
-    while(nonce < batchSize && active){
+    while(nonce < batch && active){
 
       binaryEvent = incrementNonceBuffer(binaryEvent, nonceBounds[0], nonceBounds[1])
       nonce++
       hash = digest(binaryEvent)
       work = getConstructProofOfWork(hash, binaryTarget)
 
-      if (work > highestWork) {
+      // if (work > highestWork) {
+      if( nonce < batch + 5000){
         highestWork = work
         // send highest work to main thread
-        reportHighestWork(workerNumber, work, nonce, hash, data )
+        reportHighestWork(workerNumber, work, nonce, binaryEvent, hash, data )
         if (work >= targetWork) {
           // send completed work to main thread
           postMessage({
@@ -80,10 +80,11 @@ function initiateMining(data){
           return
         }
       }
-      if (nonce % 1_000_000 === 0){
-        reportHeartbeat(workerNumber, highestWork, nonce, createdAt, performance.now()-hashDurationBegin)
-        hashDurationBegin = performance.now()
-      }
+      // }
+      // if (nonce % 1_000_000 === 0){
+      //   reportHeartbeat(workerNumber, highestWork, nonce, createdAt, performance.now()-hashDurationBegin)
+      //   hashDurationBegin = performance.now()
+      // }
     }
 
     batchComplete(workerNumber, work, nonce, createdAt, hash, performance.now()-start)
@@ -111,11 +112,11 @@ function reportHeartbeat(workerNumber, work, nonce, createdAt, duration){
   })
 }
 
-function reportHighestWork(workerNumber, work, nonce, hash, data){
+function reportHighestWork(workerNumber, work, nonce, binaryEvent, hash, data){
   postMessage({
     status: 'newhigh',
     data: {
-      ...data, workerNumber, work, nonce, hash
+      ...data, workerNumber, work, nonce, binaryEvent, hash
     },
   })
 }

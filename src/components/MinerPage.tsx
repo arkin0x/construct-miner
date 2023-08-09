@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useRef, useContext, useEffect, useState } from "react"
 import { IdentityContextType } from "../types/IdentityType"
 import { IdentityContext } from "../providers/IdentityProvider"
 import { validateHash } from "../libraries/Hash"
@@ -10,7 +10,8 @@ const MinerPage = () => {
   const { identity } = useContext<IdentityContextType>(IdentityContext)
   const [ targetHash, setTargetHash ] = useState<string>('0000000000000000000000000000000000000000000000000000000000000000')
   const [ targetWork, setTargetWork ] = useState<number>(50)
-  const [ validTargetHash, setValidTargetHash ] = useState<boolean>(false)
+  const [ validTargetHash, setValidTargetHash ] = useState<boolean>(true)
+  const targetHashRef = useRef(null)
 
   const updateTargetHash = (e: React.KeyboardEvent<HTMLInputElement> | React.ChangeEvent<HTMLInputElement>) => {
     const newTargetHash = e.currentTarget.value.trim()
@@ -28,6 +29,11 @@ const MinerPage = () => {
     setTargetWork(parseInt(e.currentTarget.value))
   }
 
+  useEffect(() => {
+    if (targetHashRef?.current)
+    targetHashRef.current.value = targetHash
+  }, [])
+
 
   // render stuff
   const inputTargetHashClass = ['input-hash', validTargetHash ? 'valid' : 'invalid'].join(' ')
@@ -37,7 +43,7 @@ const MinerPage = () => {
       <MinerIntro/>
       <div className="panel">
         <label>Target Hash {validTargetHash ? ' ✅ Valid 256-bit Hash' : null}</label><br/>
-        <input className={inputTargetHashClass} type="text" maxLength={64} placeholder="0000000000000000000000000000000000000000000000000000000000000000" onChange={updateTargetHash}/>
+        <input ref={targetHashRef} className={inputTargetHashClass} type="text" maxLength={64} placeholder="0000000000000000000000000000000000000000000000000000000000000000" onChange={updateTargetHash}/>
         <br/><br/>
         <label>Target Work</label><br/>
         <input className={'input'} type="number" max={256} min={1} defaultValue={50} onChange={updateTargetWork}/>

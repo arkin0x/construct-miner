@@ -29,7 +29,7 @@ export type MinerCommand = {
   command: MinerCommandStatus
 }
 
-export const WORKER_COUNT = 10
+export const WORKER_COUNT = 1
 // 6 bytes is 281474976710655, which is slightly less than the max size of a number in javascript that still fits nicely into a Uint8Array 6 elemenst long.
 // Divide up the max nonce into 6 equal parts, one for each worker.
 export const BATCH_SIZE = Math.floor( 281474976710655 / WORKER_COUNT )
@@ -119,8 +119,6 @@ export const incrementNonceBuffer = (buffer: Uint8Array, startIndex: number, end
       // 16 nonce digits * 4 bits per digit = 64 bits of possible entropy, which is more than enough for a nonce, especially since the created_at will be incremented and serve as entropy too.
       // wrap around if the symbol is 63 (?) and set to 48 (0)
       buffer[i] = 48
-      // increment the next symbol to the left
-      buffer[i-1]++
     } else {
       buffer[i]++
       break
