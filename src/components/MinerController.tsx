@@ -217,18 +217,20 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
   }
 
   const showConstructs = () => {
-    return Object.values(constructs).sort((a,b) => {
+    const mined = <h1>Mined Constructs</h1>
+    return [mined, Object.values(constructs).sort((a,b) => {
       // sort by highest proof of work
       return b.workCompleted - a.workCompleted
     }).map(c => {
       return <UnpublishedConstruct key={c.id} construct={c} />
-    })
+    })]
   }
 
   return (
     <>
       <><br/><br/>{ miningActive ? <button onClick={stopMining}>Stop Mining 🛑</button> : <button onClick={startMining}>Start Mining ▶</button>}</>
-      <hr/>
+      <br/><br/>
+      <hr style={{borderColor: "#fff6", borderStyle: "dotted", borderTopWidth: "6px", borderBottomWidth: "0px"}}/>
       {showConstructs()}
     </>
   )
