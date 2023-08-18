@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useReducer, useState } from "react"
 import { hexToBytes } from "@noble/hashes/utils"
 import { IdentityContextType } from "../types/IdentityType"
 import { IdentityContext } from "../providers/IdentityProvider"
@@ -25,13 +25,25 @@ type MinerProps = {
   targetWork: number
 }
 
+const constructsReducer = (state, action) => {
+  switch(action.type) {
+    case 'add': 
+      return {
+        ...state,
+        [action.construct.id]: action.construct
+      }
+    default:
+      return state
+  }
+}
+
 export const Miner = ({targetHex, targetWork}: MinerProps) => {
   const { identity } = useContext<IdentityContextType>(IdentityContext)
   const [ miningActive, setMiningActive ] = useState<boolean>(false)
   // nonce could be used to "resume" mining after a refresh; perhaps it would be loaded from localstorage, but this is not yet implemented.
   const [ nonce, setNonce ] = useState<number>(0)
   const [ workers, setWorkers ] = useState<Worker[]>([])
-  const [ constructs, setConstructs ] = useState<UnpublishedConstructType[]>([])
+  const [constructs, constructsDispatch] = useReducer(constructsReducer, {})
 
   // set up worker and listener
   useEffect(() => {
@@ -51,14 +63,21 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
   useEffect(() => {
     const storedConstructs = localStorage.getItem('constructs')
     if (storedConstructs) {
-      setConstructs(JSON.parse(storedConstructs))
+      const parsedConstructs = JSON.parse(storedConstructs)
+      Object.keys(parsedConstructs).forEach(key => {
+        constructsDispatch({type: 'add', construct: parsedConstructs[key]})
+      })
     }
   }, [])
 
+  // save any new constructs to localstorage
+  useEffect(() => {
+    localStorage.setItem('constructs', JSON.stringify(constructs))
+  }, [constructs])
+
   // when constructs is updated via updateConstructs, save to localstorage
   const updateConstructs = (construct: UnpublishedConstructType) => {
-    setConstructs([...constructs, construct])
-    localStorage.setItem('constructs', JSON.stringify(constructs))
+    constructsDispatch({type: 'add', construct})
   }
 
   const onWorkerResponse = (message: MessageEvent) => {
@@ -101,56 +120,16 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       work,
     } = msg.data
 
-    const prefix = binaryEvent.slice(0, nonceBounds[0])
-    const nonceBytes = binaryEvent.slice(nonceBounds[0], nonceBounds[1])
-    const suffix = binaryEvent.slice(nonceBounds[1])
-
-    const decodedPrefix = decoder.decode(prefix)
-    const decodedSuffix = decoder.decode(suffix)
-    const decodedNonceBytes: string[] = []
-
-    // decode nonce bytes
-    nonceBytes.forEach(b => {
-      decodedNonceBytes.push(String.fromCharCode(b))
-    })
-
-    // console.log(decoder.decode(binaryEvent))
-    console.log('///////////////////////////////////////////////////')
-    console.log(decodedNonceBytes.join(''))
-
-    // gather other data about the construct to show to user
-
-    // work - the inverse hamming distance between the target and the hash of the event
-
-    // replace nonce placeholder in event:
-
-    event.tags[0][1] = decodedNonceBytes.join('')
-
-    // make sure our hash is correct. If this throws, there is a fundamental error with the application.
-    const ours = bytesToHex(hash)
-    const theirs = getEventHash(event)
-
-    /**
-     * FIXME:
-     * This is sus. When the hashes don't match, they ALWAYS differ by 0x10000000, meaning the second to last byte is always off by 1.
-     * Ours is using chainsafe's hashing library, theirs is using the hashing library from nostr-tools. 
-     * The other weird thing is that it doesn't always happen!
-     */
-    if (ours !== theirs) {
-      console.log(ours,'ours')
-      console.log(theirs,'theirs')
-      throw new Error('hash mismatch')
-    } else {
-      console.log('all good, hashes match')
-      // we will do this later actually
-      // event.id = ours
-      // event.sig = signEvent(event)
-    }
-
+    const decoded = JSON.parse(decoder.decode(binaryEvent))
+    event.tags[0][1] = decoded[4][0][1] 
+    const id = bytesToHex(hash)
+    event.id = id
+    console.log(work, event)
     if (!validateEvent(event)){
-      console.log(event)
+      // console.log()
       throw new Error('invalid event')
     }
+
     // if (!verifySignature(event)) {
     //   console.log(event)
     //   throw new Error('invalid signature')
@@ -162,7 +141,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       readyForSignature: event,
       workCompleted: work,
       createdAt,
-      id: ours,
+      id,
     }
 
     updateConstructs(construct)
@@ -238,7 +217,10 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
   }
 
   const showConstructs = () => {
-    return constructs.map(c => {
+    return Object.values(constructs).sort((a,b) => {
+      // sort by highest proof of work
+      return b.workCompleted - a.workCompleted
+    }).map(c => {
       return <UnpublishedConstruct key={c.id} construct={c} />
     })
   }

@@ -9,7 +9,8 @@ export const UnpublishedConstruct = ({ construct }: UnpublishedConstructProps) =
 
   return (
     <div className="construct">
-      { construct.id }
+      <h2>{ construct.workCompleted }pow</h2>
+      <small>{ construct.id }</small>
     </div>
   )
 }

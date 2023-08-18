@@ -1,5 +1,5 @@
 import { getConstructProofOfWork } from "../libraries/Hash"
-import { digest } from "@chainsafe/as-sha256"
+import { sha256 } from '@noble/hashes/sha256'
 import { incrementNonceBuffer } from "../libraries/Miner"
 // import { constructSize } from "../assets/pow-table";
 
@@ -42,7 +42,6 @@ function initiateMining(data){
     binaryEvent,
     binaryTarget,
     createdAt,
-    event,
     nonceBounds,
     nonceStart,
     targetWork,
@@ -61,7 +60,7 @@ function initiateMining(data){
 
       binaryEvent = incrementNonceBuffer(binaryEvent, nonceBounds[0], nonceBounds[1])
       nonce++
-      hash = digest(binaryEvent)
+      hash = sha256(binaryEvent)
       work = getConstructProofOfWork(hash, binaryTarget)
 
       if (work > highestWork) {
