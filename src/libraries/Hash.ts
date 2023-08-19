@@ -1,7 +1,3 @@
-import { digest } from "@chainsafe/as-sha256"
-import { encode } from "@webassemblyjs/utf8/lib/encoder.js"
-import { bytesToHex } from "@noble/hashes/utils"
-
 export const encoder = new TextEncoder()
 export const decoder = new TextDecoder()
 
@@ -10,13 +6,6 @@ export function validateHash(value: string): boolean {
     return true
   }
   return false
-}
-
-export function hash(data: string): string {
-  const encoded = encode(data)
-  const hash = digest(encoded)
-  const hex = bytesToHex(hash)
-  return hex
 }
 
 // hex should be a hexadecimal string (with no 0x prefix)

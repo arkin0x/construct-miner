@@ -15,10 +15,8 @@
     "test": "yarn ts-node ./src/libraries/Hash.test.ts"
   },
   "dependencies": {
-    "@chainsafe/as-sha256": "^0.4.1",
     "@react-three/fiber": "^8.13.0",
     "@types/three": "^0.152.1",
-    "@webassemblyjs/utf8": "^1.11.6",
     "nostr-tools": "^1.11.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
