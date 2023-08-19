@@ -1,4 +1,4 @@
-import { UnpublishedConstructType } from "../types/Construct";
+import { UnpublishedConstructType } from "../types/Construct"
 
 type UnpublishedConstructProps = {
   construct: UnpublishedConstructType
