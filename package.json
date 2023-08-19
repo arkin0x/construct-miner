@@ -16,12 +16,14 @@
   },
   "dependencies": {
     "@react-three/fiber": "^8.13.0",
+    "@types/node": "^20.5.1",
     "@types/three": "^0.152.1",
     "nostr-tools": "^1.11.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.2",
     "three": "^0.153.0",
+    "webpack": "^5.88.2",
     "worker-loader": "^3.0.8"
   },
   "devDependencies": {
