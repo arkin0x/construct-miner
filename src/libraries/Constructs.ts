@@ -71,3 +71,16 @@ export function downscaleCoords(coords: BigCoords, downscale: bigint): Coords {
     plane: coords.plane
   }
 }
+
+export function divideBigIntsAsString(dividend: bigint, divisor: bigint) {
+  const quotient = dividend / divisor
+  const remainder = dividend % divisor
+  
+  // Convert the remainder to a string
+  const remainderString = remainder.toString()
+
+  // Combine the quotient and remainder as a fractional string
+  const fraction = `${quotient}.${remainderString.substring(1)}`
+
+  return fraction
+}
