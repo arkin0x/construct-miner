@@ -1,3 +1,7 @@
+import { PublishedConstructType, UnpublishedConstructType } from "../types/Construct"
+import { getConstructProofOfWork, hexToUint8 } from "./Hash"
+import { getTag } from "./Nostr"
+
 function summation(n: number): number {
   if (n < 2) {
     return n
@@ -72,15 +76,23 @@ export function downscaleCoords(coords: BigCoords, downscale: bigint): Coords {
   }
 }
 
-export function divideBigIntsAsString(dividend: bigint, divisor: bigint) {
-  const quotient = dividend / divisor
-  const remainder = dividend % divisor
-  
-  // Convert the remainder to a string
-  const remainderString = remainder.toString()
+export const sortUnpublishedConstructsPOW = (a: UnpublishedConstructType,b: UnpublishedConstructType) => {
+  // sort by highest proof of work
+  return b.workCompleted - a.workCompleted
+}
 
-  // Combine the quotient and remainder as a fractional string
-  const fraction = `${quotient}.${remainderString.substring(1)}`
+export const sortPublishedConstructsPOW = (a: PublishedConstructType,b: PublishedConstructType) => {
+  // determine work completed
+  const aNonce = a.tags.find(getTag('nonce'))
+  const aNonceValue = aNonce?.[2]
+  if (!aNonceValue) return 0
+  const aWork = getConstructProofOfWork(hexToUint8(a.id), hexToUint8(aNonceValue))
 
-  return fraction
+  const bNonce = b.tags.find(getTag('nonce'))
+  const bNonceValue = bNonce?.[2]
+  if (!bNonceValue) return 0
+  const bWork = getConstructProofOfWork(hexToUint8(b.id), hexToUint8(bNonceValue))
+
+  // sort by highest proof of work
+  return bWork - aWork
 }

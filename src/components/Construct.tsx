@@ -1,18 +1,35 @@
 import { UnpublishedConstructType } from "../types/Construct"
-import { decodeHexToCoordinates, divideBigIntsAsString } from '../libraries/Constructs'
+import { decodeHexToCoordinates } from '../libraries/Constructs'
+import { signEvent } from "../libraries/NIP-07"
 import '../scss/UnpublishedConstruct.scss'
+import { defaultRelays, getRelayList, pool } from "../libraries/Nostr"
 
 type UnpublishedConstructProps = {
   construct: UnpublishedConstructType
   onClick: (construct: UnpublishedConstructType) => void
-  selected: boolean
+  selected: boolean,
+  published: boolean
 }
 
-export const UnpublishedConstruct = ({ construct, onClick, selected }: UnpublishedConstructProps) => {
+export const UnpublishedConstruct = ({ construct, onClick, selected, published }: UnpublishedConstructProps) => {
 
-  const classNames = "construct" + (selected ? " selected" : "" )
+  const classNames = "construct" + (selected ? " selected" : "" ) + (published ? " published" : "")
 
   const coords = decodeHexToCoordinates(construct.id)
+
+  const publish = async () => {
+    console.log(construct)
+    const signedEvent = await signEvent(construct.readyForSignature)
+
+    if (signedEvent === null) {
+      // TODO: notify user
+      console.error("Failed to sign event.")
+      return
+    }
+
+    const relayList = getRelayList(defaultRelays, ['write'])
+    pool.publish(relayList, signedEvent)
+  }
 
   return (
     <div className={classNames} key={construct.id} onClick={() => onClick(construct)}>
@@ -23,6 +40,13 @@ export const UnpublishedConstruct = ({ construct, onClick, selected }: Unpublish
         z: { ((Number(coords.z) / Number(2n**85n)) * 100 ).toFixed(0) }%<br/>
       </p>
       <small className="id">{ construct.id }</small>
+      <br/><br/>
+      { published ? null : <button type="button" onClick={publish}>Publish ✨</button>}
+      &nbsp;
+      <button type="button" onClick={() => {
+        // copy to clipboard
+        navigator.clipboard.writeText(JSON.stringify(construct.readyForSignature))
+      }}>Copy 📋</button>
     </div>
   )
 }

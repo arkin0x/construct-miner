@@ -1,5 +1,5 @@
 // import { useRef, useContext, useEffect, useState } from "react"
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect, useState, useReducer } from "react"
 // import { IdentityContextType } from "../types/IdentityType"
 // import { IdentityContext } from "../providers/IdentityProvider"
 import { validateHash } from "../libraries/Hash"
@@ -7,6 +7,19 @@ import { MinerIntro } from "./MinerIntro"
 import { Miner } from "./MinerController"
 import MyConstructs from "./MyConstructs"
 import '../scss/MinerPage.scss'
+import { PublishedConstructsReducerAction, PublishedConstructsReducerState } from "../types/Construct"
+
+const constructsReducer = (state: PublishedConstructsReducerState, action: PublishedConstructsReducerAction) => {
+  switch(action.type) {
+    case 'add': 
+      return {
+        ...state,
+        [action.construct.id]: action.construct
+      }
+    default:
+      return state
+  }
+}
 
 const MinerPage = () => {
   // const { identity } = useContext<IdentityContextType>(IdentityContext)
@@ -14,6 +27,8 @@ const MinerPage = () => {
   const [ targetWork, setTargetWork ] = useState<number>(50)
   const [ validTargetHash, setValidTargetHash ] = useState<boolean>(true)
   const targetHashRef = useRef<HTMLInputElement>(null)
+  const [constructs, constructsDispatch] = useReducer(constructsReducer, {})
+
 
   const updateTargetHash = (e: React.KeyboardEvent<HTMLInputElement> | React.ChangeEvent<HTMLInputElement>) => {
     const newTargetHash = e.currentTarget.value.trim()
@@ -50,10 +65,10 @@ const MinerPage = () => {
         <label>Target Work</label><br/>
         <input className={'input'} type="number" max={256} min={1} defaultValue={50} onChange={updateTargetWork}/>
 
-        { validTargetHash ? <Miner targetHex={targetHash} targetWork={targetWork}/> : null }
+        { validTargetHash ? <Miner targetHex={targetHash} targetWork={targetWork} existingConstructs={constructs}/> : null }
         
       </div>
-      <MyConstructs/>
+      <MyConstructs constructs={constructs} updatePublishedConstructs={constructsDispatch}/>
     </div>
   )
 }

@@ -5,7 +5,7 @@ import { RelayList, RelayObject, RelayReadWrite, FilterReadWrite } from "../type
 const readWrite: RelayReadWrite = {read: true, write: true}
 
 export const defaultRelays: RelayObject = {
-  'wss://yondar.nostr1.com': readWrite,
+  'wss://cyberspace.nostr1.com': readWrite,
   'wss://relay.primal.net': readWrite,
 }
 

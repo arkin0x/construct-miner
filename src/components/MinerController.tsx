@@ -7,11 +7,12 @@ import { encoder, decoder } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
 import { Event, validateEvent } from "nostr-tools"
 // import { signEvent } from "../libraries/NIP-07"
-import { UnpublishedConstructType } from "../types/Construct"
+import { PublishedConstructsReducerState, UnpublishedConstructType, UnpublishedConstructsReducerAction, UnpublishedConstructsReducerState } from "../types/Construct"
 import { UnpublishedConstruct } from "./Construct"
 import { bytesToHex } from "@noble/hashes/utils"
 import ConstructViewer from "./ConstructViewer"
 import '../scss/MinedConstructs.scss'
+import { sortUnpublishedConstructsPOW } from "../libraries/Constructs"
 
 /**
  * export start mining
@@ -23,19 +24,12 @@ import '../scss/MinedConstructs.scss'
  */
 
 type MinerProps = {
+  existingConstructs: PublishedConstructsReducerState
   targetHex: string
   targetWork: number
 }
 
-type ConstructsReducerState = {
-  [key: string]: UnpublishedConstructType
-}
-type ConstructsReducerAction = {
-  type: 'add',
-  construct: UnpublishedConstructType
-}
-
-const constructsReducer = (state: ConstructsReducerState, action: ConstructsReducerAction) => {
+const constructsReducer = (state: UnpublishedConstructsReducerState, action: UnpublishedConstructsReducerAction) => {
   switch(action.type) {
     case 'add': 
       return {
@@ -47,7 +41,7 @@ const constructsReducer = (state: ConstructsReducerState, action: ConstructsRedu
   }
 }
 
-export const Miner = ({targetHex, targetWork}: MinerProps) => {
+export const Miner = ({existingConstructs, targetHex, targetWork}: MinerProps) => {
   const { identity } = useContext<IdentityContextType>(IdentityContext)
   const [ miningActive, setMiningActive ] = useState<boolean>(false)
   // nonce could be used to "resume" mining after a refresh; perhaps it would be loaded from localstorage, but this is not yet implemented.
@@ -75,7 +69,9 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
     const storedConstructs = localStorage.getItem('constructs')
     if (storedConstructs) {
       const parsedConstructs = JSON.parse(storedConstructs) as {[key: string]: UnpublishedConstructType}
+      const published = Object.keys(existingConstructs)
       Object.keys(parsedConstructs).forEach(key => {
+        if (key in published) return // don't load constructs that have already been published
         constructsDispatch({type: 'add', construct: parsedConstructs[key]})
       })
     }
@@ -84,7 +80,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
   // save any new constructs to localstorage
   useEffect(() => {
     localStorage.setItem('constructs', JSON.stringify(constructs))
-    const largestConstruct = Object.values(constructs).sort(sortConstructsPOW)[0]
+    const largestConstruct = Object.values(constructs).sort(sortUnpublishedConstructsPOW)[0]
     setSelectedUnpublishedConstruct(largestConstruct)
   }, [constructs])
 
@@ -137,9 +133,10 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
 
     const decoded = JSON.parse(decoder.decode(binaryEvent))
     eventWithID.tags[0][1] = decoded[4][0][1] 
+    // console.log(`${work} POW ${bytesToHex(hash).substring(58)} last byte`, hash[31].toString(2), hash[31].toString(16))
     const id = bytesToHex(hash)
     eventWithID.id = id
-    console.log(work, eventWithID)
+    // console.log(work, eventWithID)
     if (!validateEvent(eventWithID)){
       // console.log()
       throw new Error('invalid event')
@@ -231,15 +228,11 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
     })
     setMiningActive(false)
   }
-  const sortConstructsPOW = (a: UnpublishedConstructType,b: UnpublishedConstructType) => {
-      // sort by highest proof of work
-      return b.workCompleted - a.workCompleted
-    }
 
-  const showConstructs = () => {
+  const showUnpublishedConstructs = () => {
     const mined = <h1>Mined Constructs</h1>
-    return [mined, Object.values(constructs).sort(sortConstructsPOW).map(c => {
-      return <UnpublishedConstruct key={c.id} construct={c} onClick={setSelectedUnpublishedConstruct} selected={selectedUnpublishedConstruct ? selectedUnpublishedConstruct.id === c.id : false} />
+    return [mined, Object.values(constructs).sort(sortUnpublishedConstructsPOW).map(c => {
+      return <UnpublishedConstruct key={c.id} construct={c} onClick={setSelectedUnpublishedConstruct} selected={selectedUnpublishedConstruct ? selectedUnpublishedConstruct.id === c.id : false} published={false} />
     })]
   }
 
@@ -251,7 +244,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       {/* create a css grid layout where the left column scrolls with the rendered constructs and the right column is a full viewport for the constructviewer component */}
       <div className="grid grid-cols-2">
         <div className="overflow-y-scroll h-screen">
-          {showConstructs()}
+          {showUnpublishedConstructs()}
         </div>
         <div className="h-screen">
           { selectedUnpublishedConstruct ? <ConstructViewer constructSize={selectedUnpublishedConstruct.workCompleted} hexLocation={selectedUnpublishedConstruct.id} /> : null }

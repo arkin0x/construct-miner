@@ -1,33 +1,48 @@
 import { useContext, useEffect, useState } from 'react'
-import { Event } from "nostr-tools"
+import { Filter } from "nostr-tools"
 import { IdentityContextType } from "../types/IdentityType"
 import { IdentityContext } from "../providers/IdentityProvider"
-import { getAll } from '../libraries/Nostr'
-// My Constructs
+import { defaultRelays, getRelayList, pool } from '../libraries/Nostr'
+import { PublishedConstructsReducerAction, PublishedConstructsReducerState, PublishedConstructType } from '../types/Construct'
+import { sortPublishedConstructsPOW, sortUnpublishedConstructsPOW } from '../libraries/Constructs'
 
-const MyConstructs = () => {
+type MyConstructsProps = {
+  constructs: PublishedConstructsReducerState
+  updatePublishedConstructs: React.Dispatch<PublishedConstructsReducerAction>
+}
+
+const MyConstructs = ({constructs, updatePublishedConstructs}: MyConstructsProps) => {
   const { identity } = useContext<IdentityContextType>(IdentityContext)
 
-  const [ constructs, setConstructs ] = useState<Event[]>([])
   const [ foundNone, setFoundNone ] = useState<boolean>(false)
 
   useEffect(() => {
     const loadMyConstructs = async () => {
-      const kind332 = 332
-      const myConstructs = await getAll([identity.pubkey], [kind332])
-      if (myConstructs[kind332]?.length){
-        setConstructs(myConstructs[kind332])
-      } else {
-        setFoundNone(true)
-      }
+      const relayList = getRelayList(defaultRelays, ['write'])
+      const filter: Filter = {kinds: [331], authors: [identity.pubkey]}
+      const sub = pool.sub(relayList, [filter])
+      sub.on('event', event => {
+        updatePublishedConstructs({type: 'add', construct: event as PublishedConstructType})
+      })
+
+
+      // if (myConstructs[kind331]?.length){
+      //   setConstructs(myConstructs[kind331])
+      // } else {
+      //   setFoundNone(true)
+      // }
     }
     loadMyConstructs()
-  }) // @todo add some kind of dependency for when new constructs are published
+  }, [identity.pubkey, constructs, updatePublishedConstructs]) // @todo add some kind of dependency for when new constructs are published
+
+  const constructsArray = Object.values(constructs).sort(sortPublishedConstructsPOW)
+
+  if (constructsArray.length)
 
   return (
     <div id="my-constructs">
-      <h1>My Constructs</h1>
-      { constructs.length ? constructs.map((construct) => <div>{construct.id}</div>) : ( foundNone ? 'no constructs found.' : 'loading...')}
+      <h1>Published Constructs</h1>
+      { constructsArray.length ? constructsArray.map((construct) => <div>{construct.id}</div>) : 'no constructs found.' }
     </div>
   )
 

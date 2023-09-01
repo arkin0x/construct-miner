@@ -75,7 +75,7 @@ function initiateMining(data){
               workerNumber, work, nonce, createdAt, hash 
             },
           })
-          return
+          active = false
         }
       }
       if (nonce % 1_000_000 === 0){
