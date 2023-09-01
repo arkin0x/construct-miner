@@ -33,7 +33,7 @@ export const UnpublishedConstruct = ({ construct, onClick, selected, published }
 
   return (
     <div className={classNames} key={construct.id} onClick={() => onClick(construct)}>
-      <h2>{ construct.workCompleted } POW</h2>
+      <h2>{ construct.workCompleted } POW - {coords.plane}</h2>
       <p>
         x: { ((Number(coords.x) / Number(2n**85n)) * 100 ).toFixed(0) }%<br/>
         y: { ((Number(coords.y) / Number(2n**85n)) * 100 ).toFixed(0) }%<br/>

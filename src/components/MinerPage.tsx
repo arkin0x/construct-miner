@@ -59,7 +59,7 @@ const MinerPage = () => {
     <div id="miner">
       <MinerIntro/>
       <div className="panel">
-        <label>Target Hash {validTargetHash ? ' ✅ Valid 256-bit Hash' : null}</label><br/>
+        <label>Target Coordinate {validTargetHash ? ' ✅ Valid 256-bit Coordinate' : null}</label><br/>
         <input ref={targetHashRef} className={inputTargetHashClass} type="text" maxLength={64} placeholder="0000000000000000000000000000000000000000000000000000000000000000" onChange={updateTargetHash}/>
         <br/><br/>
         <label>Target Work</label><br/>
