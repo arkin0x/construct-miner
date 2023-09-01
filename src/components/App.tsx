@@ -3,6 +3,7 @@ import { IdentityProvider } from '../providers/IdentityProvider.tsx'
 import { Home } from './Home.tsx'
 import { Login } from './Login.tsx'
 import MinerPage from './MinerPage.tsx'
+import '../scss/App.scss'
 
 function App() {
 

@@ -1,0 +1,176 @@
+@import url(https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap);
+
+* {
+ box-sizing: border-box;
+ font-family: 'Share Tech Mono', monospace;
+}
+
+body {
+ background: #0a060d;
+//  background: #111;
+ color: #ccc;
+ font-size: 16px;
+ // cursor: crosshair;
+}
+
+// default stuff
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+#root {
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 100vw;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+// end defalut vite stuff
+
+#app {
+  margin: 1rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 0 -1rem;
+  button {
+    flex-grow: 2;
+    margin: 1rem;
+    padding: 1rem 0;
+  }
+}
+
+input {
+  font-size: 1.2rem;
+}
+.input-hash {
+  line-height: 1;
+  padding: 0.5rem;
+  width: 100%;
+  position: relative;
+  border: 1px solid #ccc;
+  outline: none;
+  &.valid {
+    border: 1px solid rgb(64, 190, 64);
+    text-align: center;
+  }
+  &.valid:focus-visible {
+    border-left-width: 1em;
+    border-right-width: 1em;
+    transition: all 150ms ease-in-out;
+    text-align: center;
+  }
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  #construct-logo, #construct-holo {
+    margin: 1rem 0;
+    max-width: 20vh;
+    line {
+      fill: none;
+      stroke: #ccc;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 3px;
+      transition: stroke 250ms ease-in-out;
+    }
+    &:hover line {
+      stroke: #646cff;
+    }
+  }
+  #construct-holo {
+    max-width: 40vh;
+    margin-top: -5vh;
+  }
+}
+
+.intro-title {
+  text-align: center;
+}
+
+.highlight-purple {
+  color: #646cff;
+}
+.highlight-pink {
+  color: #f33a5b;
+}
+
+.alone {
+  display: block;
+  width: 100%;
+}
+
+.jp {
+  font-family: monospace;
+}
