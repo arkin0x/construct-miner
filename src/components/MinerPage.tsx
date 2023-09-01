@@ -6,6 +6,7 @@ import { validateHash } from "../libraries/Hash"
 import { MinerIntro } from "./MinerIntro"
 import { Miner } from "./MinerController"
 import MyConstructs from "./MyConstructs"
+import '../scss/MinerPage.scss'
 
 const MinerPage = () => {
   // const { identity } = useContext<IdentityContextType>(IdentityContext)

@@ -1,20 +1,26 @@
 // define 2-column css grid layout
 
 div.grid {
-  &.grid-cols-1 {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-gap: 1rem;
-  }
-  &.grid-cols-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 1rem;
-  }
   .h-screen {
-    height: 50vh;
+    height: 25vh;
   }
   .overflow-y-scroll {
     overflow-y: scroll;
+  }
+}
+
+@media screen and (min-width: 640px){
+  div.grid {
+    &.grid-cols-1 {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    &.grid-cols-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .h-screen {
+      height: 50vh;
+    }
   }
 }

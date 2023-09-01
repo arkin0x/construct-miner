@@ -1,0 +1,11 @@
+.construct {
+  cursor: pointer;
+  overflow-x: hidden;
+  padding: 1rem 0;
+  h2 {
+    margin: 0;
+  }
+  &.selected {
+    background-color: #391557;
+  }
+}

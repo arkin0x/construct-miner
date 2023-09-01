@@ -84,6 +84,8 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
   // save any new constructs to localstorage
   useEffect(() => {
     localStorage.setItem('constructs', JSON.stringify(constructs))
+    const largestConstruct = Object.values(constructs).sort(sortConstructsPOW)[0]
+    setSelectedUnpublishedConstruct(largestConstruct)
   }, [constructs])
 
   // when constructs is updated via updateConstructs, save to localstorage
@@ -229,14 +231,15 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
     })
     setMiningActive(false)
   }
+  const sortConstructsPOW = (a: UnpublishedConstructType,b: UnpublishedConstructType) => {
+      // sort by highest proof of work
+      return b.workCompleted - a.workCompleted
+    }
 
   const showConstructs = () => {
     const mined = <h1>Mined Constructs</h1>
-    return [mined, Object.values(constructs).sort((a,b) => {
-      // sort by highest proof of work
-      return b.workCompleted - a.workCompleted
-    }).map(c => {
-      return <UnpublishedConstruct key={c.id} construct={c} onClick={setSelectedUnpublishedConstruct} />
+    return [mined, Object.values(constructs).sort(sortConstructsPOW).map(c => {
+      return <UnpublishedConstruct key={c.id} construct={c} onClick={setSelectedUnpublishedConstruct} selected={selectedUnpublishedConstruct ? selectedUnpublishedConstruct.id === c.id : false} />
     })]
   }
 
