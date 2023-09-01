@@ -7,7 +7,7 @@ import { encoder, decoder } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
 import { Event, validateEvent } from "nostr-tools"
 // import { signEvent } from "../libraries/NIP-07"
-import { PublishedConstructType, PublishedConstructsReducerState, UnpublishedConstructType, UnpublishedConstructsReducerAction, UnpublishedConstructsReducerState } from "../types/Construct"
+import { PublishedConstructsReducerState, UnpublishedConstructType, UnpublishedConstructsReducerAction, UnpublishedConstructsReducerState } from "../types/Construct"
 import { UnpublishedConstruct } from "./Construct"
 import { bytesToHex } from "@noble/hashes/utils"
 import ConstructViewer from "./ConstructViewer"

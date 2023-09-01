@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect } from 'react'
 import { Filter } from "nostr-tools"
 import { IdentityContextType } from "../types/IdentityType"
 import { IdentityContext } from "../providers/IdentityProvider"
 import { defaultRelays, getRelayList, pool } from '../libraries/Nostr'
 import { PublishedConstructsReducerAction, PublishedConstructsReducerState, PublishedConstructType } from '../types/Construct'
-import { sortPublishedConstructsPOW, sortUnpublishedConstructsPOW } from '../libraries/Constructs'
+import { sortPublishedConstructsPOW } from '../libraries/Constructs'
 
 type MyConstructsProps = {
   constructs: PublishedConstructsReducerState
@@ -13,8 +13,7 @@ type MyConstructsProps = {
 
 const MyConstructs = ({constructs, updatePublishedConstructs}: MyConstructsProps) => {
   const { identity } = useContext<IdentityContextType>(IdentityContext)
-
-  const [ foundNone, setFoundNone ] = useState<boolean>(false)
+  // const [ foundNone, setFoundNone ] = useState<boolean>(false)
 
   useEffect(() => {
     const loadMyConstructs = async () => {
