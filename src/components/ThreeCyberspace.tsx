@@ -27,6 +27,8 @@ const SunMaterial = new THREE.MeshBasicMaterial({
 })
 
 interface CyberspaceProps {
+  // assert parentRef.current is not null
+  parentRef: React.RefObject<HTMLDivElement>,
   targetSize: number, // size of construct to determine camera orbit radius
   targetCoord: BigCoords, // for camera orbit
   children: React.ReactNode,
@@ -34,7 +36,7 @@ interface CyberspaceProps {
 
 const centerVec = new THREE.Vector3(UNIVERSE_SIZE_HALF, UNIVERSE_SIZE_HALF, UNIVERSE_SIZE_HALF) // The center of cyberspace
 
-export const Cyberspace: React.FC<CyberspaceProps> = ({ targetSize, targetCoord, children }) => {
+export const Cyberspace: React.FC<CyberspaceProps> = ({ parentRef, targetSize, targetCoord, children }) => {
   const groupRef = useRef<THREE.Group>(null)
   // const [interactionActive, setInteractionActive] = useState(false)
   const [defaultView, setDefaultView] = useState(true)
@@ -44,18 +46,21 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ targetSize, targetCoord,
   const [interactionResetDelay, setInteractionResetDelay] = useState(INTERACTION_RESET_DELAY)
   const { camera } = useThree()
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const parent = parentRef.current!
+
   const targetPosition = centerVec
   const downscaledTargetCoord = downscaleCoords(targetCoord, UNIVERSE_DOWNSCALE)
   // const radius = targetSize * 10 // The radius of the circular path the camera will follow
 
-const minSize = 1
-const maxSize = 2**50/256/256
+  const minSize = 1
+  const maxSize = 2**50/256/256
 
-// const ratio = ( targetSize + (maxSize * 0.1)) / maxSize
-const ratio = targetSize / maxSize
+  // const ratio = ( targetSize + (maxSize * 0.1)) / maxSize
+  const ratio = targetSize / maxSize
 
-// const radius = 100 * Math.pow(targetSize, ratio) + targetSize
-// const radius = 100 + targetSize * (1 + ratio)
+  // const radius = 100 * Math.pow(targetSize, ratio) + targetSize
+  // const radius = 100 + targetSize * (1 + ratio)
   const invertRatioLimit = Math.max(1-ratio, minSize/maxSize)
 
   const radius = Math.max(100, targetSize + targetSize * invertRatioLimit)
@@ -80,16 +85,17 @@ const ratio = targetSize / maxSize
         }, interactionResetDelay)
     }
 
-    window.addEventListener('pointerdown', handleInteractionStart)
-    window.addEventListener('pointerup', handleInteractionEnd)
-    window.addEventListener('wheel', handleInteractionStart)
+    parent.addEventListener('pointerdown', handleInteractionStart)
+    parent.addEventListener('pointerup', handleInteractionEnd)
+    parent.addEventListener('wheel', handleInteractionStart)
 
     // Cleanup event listeners on unmount
     return () => {
-      window.removeEventListener('pointerdown', handleInteractionStart)
-      window.removeEventListener('pointerup', handleInteractionEnd)
-      window.addEventListener('wheel', handleInteractionStart)
+      parent.removeEventListener('pointerdown', handleInteractionStart)
+      parent.removeEventListener('pointerup', handleInteractionEnd)
+      parent.addEventListener('wheel', handleInteractionStart)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetSize, targetCoord])
 
   // Compute the lines and grids only once

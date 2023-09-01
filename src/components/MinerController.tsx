@@ -177,6 +177,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       created_at: createdAt,
       tags: [["nonce",nonceBytes,targetHex]],
       content: '',
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       pubkey: identity!.pubkey,
     }
     const serializedEvent = serializeEvent(event)
