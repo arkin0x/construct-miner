@@ -41,6 +41,7 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ targetSize, targetCoord,
   const defaultViewTimeoutRef = useRef<NodeJS.Timeout|undefined>(undefined)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [lerpAlpha, setLerpAlpha] = useState(1)
+  const [interactionResetDelay, setInteractionResetDelay] = useState(INTERACTION_RESET_DELAY)
   const { camera } = useThree()
 
   const targetPosition = centerVec
@@ -61,18 +62,22 @@ const ratio = targetSize / maxSize
 
   // Attach pointerdown and pointerup event listeners
   useEffect(() => {
+    setLerpAlpha(1)
     const handleInteractionStart = () => {
       setLerpAlpha(0.05) // permanent
+      setInteractionResetDelay(INTERACTION_RESET_DELAY)
       clearTimeout(defaultViewTimeoutRef.current)
       // setInteractionActive(true)
       setDefaultView(false)
     }
     const handleInteractionEnd = () => {
+      setLerpAlpha(0.05)
+      setInteractionResetDelay(0)
       // setInteractionActive(false)
       defaultViewTimeoutRef.current = setTimeout(() => {
           // LERP camera back to default orbit
           setDefaultView(true)
-        }, INTERACTION_RESET_DELAY)
+        }, interactionResetDelay)
     }
 
     window.addEventListener('pointerdown', handleInteractionStart)
@@ -85,7 +90,7 @@ const ratio = targetSize / maxSize
       window.removeEventListener('pointerup', handleInteractionEnd)
       window.addEventListener('wheel', handleInteractionStart)
     }
-  }, [])
+  }, [targetSize, targetCoord])
 
   // Compute the lines and grids only once
   const { grids, blacksun } = useMemo(() => {

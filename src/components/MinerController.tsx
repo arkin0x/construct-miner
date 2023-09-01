@@ -10,6 +10,8 @@ import { Event, validateEvent } from "nostr-tools"
 import { UnpublishedConstructType } from "../types/Construct"
 import { UnpublishedConstruct } from "./Construct"
 import { bytesToHex } from "@noble/hashes/utils"
+import ConstructViewer from "./ConstructViewer"
+import '../scss/MinedConstructs.scss'
 
 /**
  * export start mining
@@ -52,6 +54,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
   // const [ nonce, setNonce ] = useState<number>(0)
   const [ workers, setWorkers ] = useState<Worker[]>([])
   const [constructs, constructsDispatch] = useReducer(constructsReducer, {})
+  const [selectedUnpublishedConstruct, setSelectedUnpublishedConstruct] = useState<UnpublishedConstructType | null>(null)
 
   // set up worker and listener
   useEffect(() => {
@@ -232,7 +235,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       // sort by highest proof of work
       return b.workCompleted - a.workCompleted
     }).map(c => {
-      return <UnpublishedConstruct key={c.id} construct={c} />
+      return <UnpublishedConstruct key={c.id} construct={c} onClick={setSelectedUnpublishedConstruct} />
     })]
   }
 
@@ -241,7 +244,15 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       <><br/><br/>{ miningActive ? <button onClick={stopMining}>Stop Mining 🛑</button> : <button onClick={startMining}>Start Mining ▶</button>}</>
       <br/><br/>
       <hr style={{borderColor: "#fff6", borderStyle: "dotted", borderTopWidth: "6px", borderBottomWidth: "0px"}}/>
-      {showConstructs()}
+      {/* create a css grid layout where the left column scrolls with the rendered constructs and the right column is a full viewport for the constructviewer component */}
+      <div className="grid grid-cols-2">
+        <div className="overflow-y-scroll h-screen">
+          {showConstructs()}
+        </div>
+        <div className="h-screen">
+          { selectedUnpublishedConstruct ? <ConstructViewer constructSize={selectedUnpublishedConstruct.workCompleted} hexLocation={selectedUnpublishedConstruct.id} /> : null }
+        </div>
+      </div>
     </>
   )
 

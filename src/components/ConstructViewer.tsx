@@ -4,9 +4,9 @@ import { OrbitControls } from "@react-three/drei"
 import { Cyberspace } from './ThreeCyberspace'
 import { UNIVERSE_DOWNSCALE, UNIVERSE_SIZE, CENTERCOORD } from "../libraries/Cyberspace"
 import { Construct } from './ThreeConstruct'
-// import './App.css'
 import { BigCoords, decodeHexToCoordinates, downscaleCoords } from '../libraries/Constructs'
 import * as THREE from 'three'
+import "../scss/CyberspaceViewer.scss"
 
 export type ConstructViewerProps = {
   constructSize?: number,
@@ -14,19 +14,19 @@ export type ConstructViewerProps = {
   style?: React.CSSProperties,
 }
 
-const ConstructViewer = ({constructSize = 1, hexLocation = CENTERCOORD, style = {height: "100vh"}}: ConstructViewerProps) => {
+const ConstructViewer = ({constructSize = 1, hexLocation = CENTERCOORD, style = {height: "100%"}}: ConstructViewerProps) => {
 
   const [scale] = useState(UNIVERSE_SIZE)
   const [size, setSize] = useState(constructSize)
   const [coord, setCoord] = useState<BigCoords>(decodeHexToCoordinates(hexLocation))
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const coordParam = urlParams.get('coord') || CENTERCOORD
-    setCoord(decodeHexToCoordinates(coordParam))
-    const sizeParam = urlParams.get('constructSize') || ""
-    setSize(parseInt(sizeParam) || 1)
-  }, [])
+    // const urlParams = new URLSearchParams(window.location.search)
+    // const coordParam = urlParams.get('coord') || CENTERCOORD
+    setCoord(decodeHexToCoordinates(hexLocation))
+    // const sizeParam = urlParams.get('constructSize') || ""
+    setSize(constructSize)
+  }, [constructSize, hexLocation])
 
   const downscaled = downscaleCoords(coord, UNIVERSE_DOWNSCALE)
   const orbitTarget = new THREE.Vector3(downscaled.x, downscaled.y, downscaled.z)
