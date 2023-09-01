@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from "@react-three/drei"
-import { Cyberspace } from './components/ThreeCyberspace'
-import { UNIVERSE_DOWNSCALE, UNIVERSE_SIZE, CENTERCOORD } from "./libraries/Cyberspace"
-import { Construct } from './components/ThreeConstruct'
-import './App.css'
-import { BigCoords, decodeHexToCoordinates, downscaleCoords } from './libraries/Constructs'
+import { Cyberspace } from './ThreeCyberspace'
+import { UNIVERSE_DOWNSCALE, UNIVERSE_SIZE, CENTERCOORD } from "../libraries/Cyberspace"
+import { Construct } from './ThreeConstruct'
+// import './App.css'
+import { BigCoords, decodeHexToCoordinates, downscaleCoords } from '../libraries/Constructs'
 import * as THREE from 'three'
 
 export type ConstructViewerProps = {

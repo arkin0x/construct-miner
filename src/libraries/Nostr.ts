@@ -1,21 +1,15 @@
-import { SimplePool, Filter, Sub, Event, Kind } from "nostr-tools"
-import { NostrIdentity } from "../types/NostrIdentity"
+import { SimplePool, Filter, Sub, Event } from "nostr-tools"
+import { IdentityType } from "../types/IdentityType"
+import { RelayList, RelayObject, RelayReadWrite, FilterReadWrite } from "../types/NostrRelay"
 
-export const defaultRelays = [
-  'wss://relay.damus.io/',
-  'wss://eden.nostr.land/',
-  'wss://nostr-pub.wellorder.net/',
-  'wss://nostr-verified.wellorder.net/',
-  'wss://bitcoinmaximalists.online/',
-  'wss://relay.orangepill.dev/',
-  'wss://nostr.bitcoiner.social/',
-  'wss://nostr.plebchain.org/',
-  'wss://nos.lol/',
-  'wss://relay.snort.social/',
-  'wss://relay.devstr.org/',
-]
+const readWrite: RelayReadWrite = {read: true, write: true}
 
-export const defaultProfile: NostrIdentity = {
+export const defaultRelays: RelayObject = {
+  'wss://yondar.nostr1.com': readWrite,
+  'wss://relay.primal.net': readWrite,
+}
+
+export const defaultProfile: IdentityType = {
   'name': 'unknown',
   'username': 'unknown',
   'display_name': 'unknown',
@@ -30,9 +24,36 @@ type EventsByKind = {
   [key: number]: Event[]
 }
 
-export const getAll = async (pubkey: string[] | undefined, kinds: number[], relays: string[] = defaultRelays) => {
+// write a properly typed getTag function to pass into the find method that takes a tag string and returns the value for that key
+type FindTag = (tag: string[], i: number, o: string[][]) => boolean;
+export const getTag = (key: string): FindTag => {
+  return (tag): boolean => {
+    return tag && Array.isArray(tag) && tag[0] === key
+  }
+}
+
+/**
+ * 
+ * @param relays RelayObject
+ * @param requireReadWrite FilterReadWrite - array of 'read' and/or 'write'. If you specify 'read' and the relay's 'read' is true, it will be included in the array. If you specify 'read' and 'write', then the relay's 'read' and 'write' must both be true for it to be included in the array.
+ */
+export const getRelayList = (relays: RelayObject, requireReadWrite?: FilterReadWrite): RelayList => {
+  const relayList: RelayList = []
+  for (const [relay, rw] of Object.entries(relays)) {
+    if (!requireReadWrite || requireReadWrite.every(r => rw[r])) {
+      relayList.push(relay)
+    }
+  }
+  if (relayList.length === 0) {
+    console.warn('No relays found that match the specified read/write requirements.')
+  }
+  return relayList
+}
+
+export const getAll = async (pubkey: string[] | undefined, kinds: number[], relays: RelayObject = defaultRelays) => {
   const filter: Filter<number> = {kinds: [...kinds], authors: pubkey}
-  const sub: Sub = pool.sub(relays,[filter])
+  const relayList: RelayList = getRelayList(relays, ['read'])
+  const sub: Sub = pool.sub(relayList,[filter])
   const events: EventsByKind = {}
   sub.on('event', event => {
     events[event.kind].push(event)
@@ -46,10 +67,11 @@ export const getAll = async (pubkey: string[] | undefined, kinds: number[], rela
   return all
 }
 
-export const getMostRecent = async (pubkey: string, kinds: number[], relays: string[] = defaultRelays) => {
+export const getMostRecent = async (pubkey: string, kinds: number[], relays: RelayObject = defaultRelays): Promise<Event | null> => {
   if (kinds.length > 1) console.warn('getMostRecent will only return the single most recent event of all supplied kinds.')
   const filter: Filter<number> = {kinds: [...kinds], authors: [pubkey]}
-  const sub: Sub = pool.sub(relays,[filter])
+  const relayList: RelayList = getRelayList(relays, ['read'])
+  const sub: Sub = pool.sub(relayList,[filter])
   const kind: Event[] = []
   sub.on('event', event => {
     if (typeof event.created_at === 'number') {
@@ -59,11 +81,11 @@ export const getMostRecent = async (pubkey: string, kinds: number[], relays: str
     }
   })
   try {
-    const mostRecent = await new Promise<Event>((resolve,reject)  => {
+    const mostRecent = await new Promise<Event|null>((resolve,reject)  => {
       sub.on('eose', () => {
         // find most recent kind event
         if (kind.length === 0) {
-          reject('No events found.')
+          reject(null)
         } else {
           const mostRecent = kind.reduce((a, b) => a.created_at > b.created_at ? a : b)
           resolve(mostRecent)
@@ -73,24 +95,26 @@ export const getMostRecent = async (pubkey: string, kinds: number[], relays: str
     return mostRecent
   } catch (e) {
     console.warn('Failed to get most recent events.',kinds, pubkey)
-    return [];
+    return null
   }
 }
 
-export const getMyRelays = async (pubkey: string) => {
+export const getMyRelays = async (pubkey: string): Promise<RelayObject> => {
   const myMetadata = await getMostRecent(pubkey,[3])
+  if (!myMetadata) return defaultRelays
   try {
-    return JSON.parse(myMetadata.content)
+    return JSON.parse(myMetadata.content) as RelayObject
   } catch (e) {
     console.warn('Failed to parse relays from user metadata. Keeping default relay set.')
     return defaultRelays
   }
 }
 
-export const getMyProfile = async (pubkey: string): Promise<NostrIdentity> => {
+export const getMyProfile = async (pubkey: string): Promise<IdentityType> => {
   const myProfile = await getMostRecent(pubkey,[0])
+  if (!myProfile) return defaultProfile
   try {
-    const parsedProfile = JSON.parse(myProfile.content) as NostrIdentity
+    const parsedProfile = JSON.parse(myProfile.content) as IdentityType
     return Object.assign({}, parsedProfile, {pubkey})
   } catch (e) {
     console.warn('Failed to parse profile from user metadata.')

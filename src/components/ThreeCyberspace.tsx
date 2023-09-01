@@ -3,7 +3,6 @@ import { useThree, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { BigCoords, downscaleCoords } from "../libraries/Constructs.js"
 import { UNIVERSE_SIZE_HALF, UNIVERSE_DOWNSCALE, UNIVERSE_SIZE } from "../libraries/Cyberspace.js"
-import { invert } from "three/examples/jsm/nodes/Nodes.js"
 
 const INTERACTION_RESET_DELAY = 5_000
 
@@ -37,7 +36,7 @@ const centerVec = new THREE.Vector3(UNIVERSE_SIZE_HALF, UNIVERSE_SIZE_HALF, UNIV
 
 export const Cyberspace: React.FC<CyberspaceProps> = ({ targetSize, targetCoord, children }) => {
   const groupRef = useRef<THREE.Group>(null)
-  const [interactionActive, setInteractionActive] = useState(false)
+  // const [interactionActive, setInteractionActive] = useState(false)
   const [defaultView, setDefaultView] = useState(true)
   const defaultViewTimeoutRef = useRef<NodeJS.Timeout|undefined>(undefined)
   const [elapsedTime, setElapsedTime] = useState(0)
@@ -65,11 +64,11 @@ const ratio = targetSize / maxSize
     const handleInteractionStart = () => {
       setLerpAlpha(0.05) // permanent
       clearTimeout(defaultViewTimeoutRef.current)
-      setInteractionActive(true)
+      // setInteractionActive(true)
       setDefaultView(false)
     }
     const handleInteractionEnd = () => {
-      setInteractionActive(false)
+      // setInteractionActive(false)
       defaultViewTimeoutRef.current = setTimeout(() => {
           // LERP camera back to default orbit
           setDefaultView(true)

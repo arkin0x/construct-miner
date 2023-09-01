@@ -1,17 +1,18 @@
-import { useRef, useContext, useEffect, useState } from "react"
-import { IdentityContextType } from "../types/IdentityType"
-import { IdentityContext } from "../providers/IdentityProvider"
+// import { useRef, useContext, useEffect, useState } from "react"
+import { useRef, useEffect, useState } from "react"
+// import { IdentityContextType } from "../types/IdentityType"
+// import { IdentityContext } from "../providers/IdentityProvider"
 import { validateHash } from "../libraries/Hash"
 import { MinerIntro } from "./MinerIntro"
 import { Miner } from "./MinerController"
 import MyConstructs from "./MyConstructs"
 
 const MinerPage = () => {
-  const { identity } = useContext<IdentityContextType>(IdentityContext)
+  // const { identity } = useContext<IdentityContextType>(IdentityContext)
   const [ targetHash, setTargetHash ] = useState<string>('0000000000000000000000000000000000000000000000000000000000000000')
   const [ targetWork, setTargetWork ] = useState<number>(50)
   const [ validTargetHash, setValidTargetHash ] = useState<boolean>(true)
-  const targetHashRef = useRef(null)
+  const targetHashRef = useRef<HTMLInputElement>(null)
 
   const updateTargetHash = (e: React.KeyboardEvent<HTMLInputElement> | React.ChangeEvent<HTMLInputElement>) => {
     const newTargetHash = e.currentTarget.value.trim()
@@ -32,7 +33,7 @@ const MinerPage = () => {
   useEffect(() => {
     if (targetHashRef?.current)
     targetHashRef.current.value = targetHash
-  }, [])
+  }, [targetHash])
 
 
   // render stuff

@@ -2,7 +2,6 @@ import React, { useMemo, useRef } from "react"
 import * as THREE from "three"
 import { Line } from "three"
 import { InverseConstructLineData, getCubeWireframeVertices } from "../data/ConstructLineData.js"
-import { Operator } from "./ThreeOperator"
 import { BigCoords, downscaleCoords } from "../libraries/Constructs.js"
 import { UNIVERSE_DOWNSCALE } from "../libraries/Cyberspace.js"
 
@@ -54,6 +53,7 @@ export const Construct: React.FC<{ coord: BigCoords, size?: number  }> = ({ coor
     })
 
     return { lines, cube }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

@@ -14,7 +14,7 @@ export type IdentityType = {
   banner?: string
   lud16?: string
   // [key: string]: string | undefined
-} | null
+}
 
 export type IdentityContextType = {
   identity: IdentityType,
@@ -23,7 +23,7 @@ export type IdentityContextType = {
 }
 
 export const defaultIdentityContext: IdentityContextType = {
-  identity: null,
+  identity: null!,
   setIdentity: () => {},
   isIdentityFresh: () => {},
 }

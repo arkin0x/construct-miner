@@ -2,11 +2,11 @@ import { useContext, useEffect, useReducer, useState } from "react"
 import { hexToBytes } from "@noble/hashes/utils"
 import { IdentityContextType } from "../types/IdentityType"
 import { IdentityContext } from "../providers/IdentityProvider"
-import { MinerMessage, WORKER_COUNT, BATCH_SIZE, serializeEvent, getNonceBounds, calculateHashrate, convertNumberToUint8Array, MinerCommand } from "../libraries/Miner"
-import { encoder, decoder, uint8ToHex } from "../libraries/Hash"
+import { MinerMessage, WORKER_COUNT, BATCH_SIZE, serializeEvent, getNonceBounds, MinerCommand } from "../libraries/Miner"
+import { encoder, decoder } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
-import { Event, UnsignedEvent, getEventHash, validateEvent, verifySignature } from "nostr-tools"
-import { signEvent } from "../libraries/NIP-07"
+import { Event, validateEvent } from "nostr-tools"
+// import { signEvent } from "../libraries/NIP-07"
 import { UnpublishedConstructType } from "../types/Construct"
 import { UnpublishedConstruct } from "./Construct"
 import { bytesToHex } from "@noble/hashes/utils"
@@ -49,7 +49,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
   const { identity } = useContext<IdentityContextType>(IdentityContext)
   const [ miningActive, setMiningActive ] = useState<boolean>(false)
   // nonce could be used to "resume" mining after a refresh; perhaps it would be loaded from localstorage, but this is not yet implemented.
-  const [ nonce, setNonce ] = useState<number>(0)
+  // const [ nonce, setNonce ] = useState<number>(0)
   const [ workers, setWorkers ] = useState<Worker[]>([])
   const [constructs, constructsDispatch] = useReducer(constructsReducer, {})
 
@@ -124,7 +124,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       createdAt,
       event,
       hash,
-      nonceBounds,
+      // nonceBounds,
       work,
     } = msg.data
 

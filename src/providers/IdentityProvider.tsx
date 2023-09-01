@@ -11,7 +11,7 @@ type IdentityProviderProps = {
 export const IdentityContext = createContext<IdentityContextType>(defaultIdentityContext)
 
 export const IdentityProvider: React.FC<IdentityProviderProps> = ({children})=> {
-  const [identity, setIdentity] = usePersistedState<IdentityType>('identity', null)
+  const [identity, setIdentity] = usePersistedState<IdentityType>('identity')
 
   const isIdentityFresh = (): boolean => {
     if (identity?.last_updated && +new Date() - identity.last_updated < STALE_PROFILE) {
