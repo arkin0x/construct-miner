@@ -1,9 +1,9 @@
 import { Routes, Route } from 'react-router-dom'
-import { IdentityProvider } from './providers/IdentityProvider.tsx'
-import { Home } from './components/Home'
-import { Login } from './components/Login'
-import './scss/App.scss'
-import MinerPage from './components/MinerPage.tsx'
+import { IdentityProvider } from '../providers/IdentityProvider.tsx'
+import { Home } from './Home.tsx'
+import { Login } from './Login.tsx'
+import MinerPage from './MinerPage.tsx'
+import '../scss/App.scss'
 
 function App() {
 

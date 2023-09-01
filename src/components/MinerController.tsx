@@ -75,6 +75,7 @@ export const Miner = ({existingConstructs, targetHex, targetWork}: MinerProps) =
         constructsDispatch({type: 'add', construct: parsedConstructs[key]})
       })
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // save any new constructs to localstorage
