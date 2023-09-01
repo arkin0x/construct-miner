@@ -5,7 +5,7 @@ import { IdentityContext } from "../providers/IdentityProvider"
 import { MinerMessage, WORKER_COUNT, BATCH_SIZE, serializeEvent, getNonceBounds, calculateHashrate, convertNumberToUint8Array, MinerCommand } from "../libraries/Miner"
 import { encoder, decoder, uint8ToHex } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
-import { UnsignedEvent, getEventHash, validateEvent, verifySignature } from "nostr-tools"
+import { Event, UnsignedEvent, getEventHash, validateEvent, verifySignature } from "nostr-tools"
 import { signEvent } from "../libraries/NIP-07"
 import { UnpublishedConstructType } from "../types/Construct"
 import { UnpublishedConstruct } from "./Construct"
@@ -25,7 +25,15 @@ type MinerProps = {
   targetWork: number
 }
 
-const constructsReducer = (state, action) => {
+type ConstructsReducerState = {
+  [key: string]: UnpublishedConstructType
+}
+type ConstructsReducerAction = {
+  type: 'add',
+  construct: UnpublishedConstructType
+}
+
+const constructsReducer = (state: ConstructsReducerState, action: ConstructsReducerAction) => {
   switch(action.type) {
     case 'add': 
       return {
@@ -63,7 +71,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
   useEffect(() => {
     const storedConstructs = localStorage.getItem('constructs')
     if (storedConstructs) {
-      const parsedConstructs = JSON.parse(storedConstructs)
+      const parsedConstructs = JSON.parse(storedConstructs) as {[key: string]: UnpublishedConstructType}
       Object.keys(parsedConstructs).forEach(key => {
         constructsDispatch({type: 'add', construct: parsedConstructs[key]})
       })
@@ -120,12 +128,14 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
       work,
     } = msg.data
 
+    const eventWithID = event as Event<37515>
+
     const decoded = JSON.parse(decoder.decode(binaryEvent))
-    event.tags[0][1] = decoded[4][0][1] 
+    eventWithID.tags[0][1] = decoded[4][0][1] 
     const id = bytesToHex(hash)
-    event.id = id
-    console.log(work, event)
-    if (!validateEvent(event)){
+    eventWithID.id = id
+    console.log(work, eventWithID)
+    if (!validateEvent(eventWithID)){
       // console.log()
       throw new Error('invalid event')
     }
@@ -138,7 +148,7 @@ export const Miner = ({targetHex, targetWork}: MinerProps) => {
     // all good
 
     const construct: UnpublishedConstructType = {
-      readyForSignature: event,
+      readyForSignature: eventWithID,
       workCompleted: work,
       createdAt,
       id,
