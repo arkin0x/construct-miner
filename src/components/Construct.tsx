@@ -41,12 +41,11 @@ export const UnpublishedConstruct = ({ construct, onClick, selected, published }
       </p>
       <small className="id">{ construct.id }</small>
       <br/><br/>
-      { published ? null : <button type="button" onClick={publish}>Publish ✨</button>}
-      &nbsp;
-      <button type="button" onClick={() => {
+      { published ? <button type="button" disabled>Published! ✅</button> : <><button type="button" onClick={publish}>Publish ✨</button>&nbsp;</>}
+      {/* <button type="button" onClick={() => {
         // copy to clipboard
         navigator.clipboard.writeText(JSON.stringify(construct.readyForSignature))
-      }}>Copy 📋</button>
+      }}>Copy 📋</button> */}
     </div>
   )
 }

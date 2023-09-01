@@ -7,7 +7,7 @@ import { encoder, decoder } from "../libraries/Hash"
 import Worker from '../workers/ConstructMiner.worker?worker'
 import { Event, validateEvent } from "nostr-tools"
 // import { signEvent } from "../libraries/NIP-07"
-import { PublishedConstructsReducerState, UnpublishedConstructType, UnpublishedConstructsReducerAction, UnpublishedConstructsReducerState } from "../types/Construct"
+import { PublishedConstructType, PublishedConstructsReducerState, UnpublishedConstructType, UnpublishedConstructsReducerAction, UnpublishedConstructsReducerState } from "../types/Construct"
 import { UnpublishedConstruct } from "./Construct"
 import { bytesToHex } from "@noble/hashes/utils"
 import ConstructViewer from "./ConstructViewer"
@@ -232,7 +232,8 @@ export const Miner = ({existingConstructs, targetHex, targetWork}: MinerProps) =
   const showUnpublishedConstructs = () => {
     const mined = <h1>Mined Constructs</h1>
     return [mined, Object.values(constructs).sort(sortUnpublishedConstructsPOW).map(c => {
-      return <UnpublishedConstruct key={c.id} construct={c} onClick={setSelectedUnpublishedConstruct} selected={selectedUnpublishedConstruct ? selectedUnpublishedConstruct.id === c.id : false} published={false} />
+      const publishStatus = existingConstructs[c.id]
+      return <UnpublishedConstruct key={c.id} construct={c} onClick={setSelectedUnpublishedConstruct} selected={selectedUnpublishedConstruct ? selectedUnpublishedConstruct.id === c.id : false} published={!!publishStatus} />
     })]
   }
 
@@ -243,7 +244,7 @@ export const Miner = ({existingConstructs, targetHex, targetWork}: MinerProps) =
       <hr style={{borderColor: "#fff6", borderStyle: "dotted", borderTopWidth: "6px", borderBottomWidth: "0px"}}/>
       {/* create a css grid layout where the left column scrolls with the rendered constructs and the right column is a full viewport for the constructviewer component */}
       <div className="grid grid-cols-2">
-        <div className="overflow-y-scroll h-screen">
+        <div className="mined overflow-y-scroll h-screen">
           {showUnpublishedConstructs()}
         </div>
         <div className="h-screen">
