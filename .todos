@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "desc": "automatically save highest POW constructs to localStorage. delete or publish options.",
+    "status": "done",
+    "modified": "2023-09-01 17:12:10.4060147 -0500 CDT"
+  },
+  {
+    "id": 2,
+    "desc": "memory leak begins around nonce 30-40 million. stop mining for a minute or so and the memory will finally come back down",
+    "status": "done",
+    "modified": "2023-08-18 18:28:07.0515084 -0500 CDT"
+  },
+  {
+    "id": 3,
+    "desc": "show mined constructs age and whether they are stale or not (nip-22 might prevent publication)",
+    "status": "pending",
+    "modified": "2023-08-18 18:18:54.9990936 -0500 CDT"
+  },
+  {
+    "id": 4,
+    "desc": "add clear/clear all options to UI",
+    "status": "pending",
+    "modified": "2023-09-01 17:12:26.28244 -0500 CDT"
+  },
+  {
+    "id": 5,
+    "desc": "use the user's relays",
+    "status": "pending",
+    "modified": "2023-09-01 17:12:43.2711426 -0500 CDT"
+  },
+  {
+    "id": 6,
+    "desc": "need a way to notify miners to stop or of a new high so they won't report their new highs if it is lower than the highest from all workers. The while loop runs too tightly for the onmessage to interrupt, so I need to refactor it so every 500_000 iterationts it will schedule another loop with setTimeout(loop, 0). fixing this will also allow us to properly send the stop command and have it be obeyed because right now it isnt'.",
+    "status": "pending",
+    "modified": "2023-09-01 17:13:47.9156512 -0500 CDT"
+  },
+  {
+    "id": 7,
+    "desc": "improve UX for already pubiished constructs",
+    "status": "pending",
+    "modified": "2023-09-01 17:14:51.7642772 -0500 CDT"
+  }
+]
