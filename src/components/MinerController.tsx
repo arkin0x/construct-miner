@@ -175,7 +175,7 @@ export const Miner = ({existingConstructs, targetHex, targetWork}: MinerProps) =
     const event = {
       kind: 331,
       created_at: createdAt,
-      tags: [["nonce",nonceBytes,targetHex]],
+      tags: [["nonce",nonceBytes,targetHex],["version","1"]],
       content: '',
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       pubkey: identity!.pubkey,

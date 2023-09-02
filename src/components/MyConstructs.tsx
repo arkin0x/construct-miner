@@ -16,27 +16,22 @@ const MyConstructs = ({constructs, updatePublishedConstructs}: MyConstructsProps
   // const [ foundNone, setFoundNone ] = useState<boolean>(false)
 
   useEffect(() => {
+    const relayList = getRelayList(defaultRelays, ['write'])
+    const filter: Filter = {kinds: [331], authors: [identity.pubkey]}
+    const sub = pool.sub(relayList, [filter])
     const loadMyConstructs = async () => {
-      const relayList = getRelayList(defaultRelays, ['write'])
-      const filter: Filter = {kinds: [331], authors: [identity.pubkey]}
-      const sub = pool.sub(relayList, [filter])
       sub.on('event', event => {
+        console.log('found construct', event)
         updatePublishedConstructs({type: 'add', construct: event as PublishedConstructType})
       })
-
-
-      // if (myConstructs[kind331]?.length){
-      //   setConstructs(myConstructs[kind331])
-      // } else {
-      //   setFoundNone(true)
-      // }
     }
     loadMyConstructs()
-  }, [identity.pubkey, constructs, updatePublishedConstructs]) // @todo add some kind of dependency for when new constructs are published
+    return () => {
+      pool.close(relayList)
+    }
+  }, [identity.pubkey]) // @todo add some kind of dependency for when new constructs are published
 
   const constructsArray = Object.values(constructs).sort(sortPublishedConstructsPOW)
-
-  if (constructsArray.length)
 
   return (
     <div id="my-constructs">
