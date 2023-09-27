@@ -20,14 +20,14 @@ export type BigCoords = {
   x: bigint
   y: bigint
   z: bigint
-  plane: "c-space" | "d-space"
+  plane: "i-space" | "d-space"
 }
 
 export type Coords = {
   x: number
   y: number
   z: number
-  plane: "c-space" | "d-space"
+  plane: "i-space" | "d-space"
 }
 
 // @todo this decoding doesn't work as described in the cyberspace spec. Each most significant bit should divide the space in half.
@@ -62,7 +62,7 @@ export function decodeHexToCoordinates(hexString: string): BigCoords {
 
     const lastBit = Number(binaryString[255])
 
-    const plane = lastBit === 0 ? "d-space" : "c-space"
+    const plane = lastBit === 0 ? "d-space" : "i-space"
 
     return {x: X, y: Y, z: Z, plane }
 }
