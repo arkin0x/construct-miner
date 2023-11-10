@@ -2,14 +2,29 @@
 import { useRef, useEffect, useState, useReducer } from "react"
 // import { IdentityContextType } from "../types/IdentityType"
 // import { IdentityContext } from "../providers/IdentityProvider"
-import { validateHash } from "../libraries/Hash"
+import { getConstructProofOfWork, validateHash } from "../libraries/Hash"
+import { hexToBytes } from "@noble/hashes/utils"
 import { MinerIntro } from "./MinerIntro"
 import { Miner } from "./MinerController"
 import MyConstructs from "./MyConstructs"
 import '../scss/MinerPage.scss'
 import { PublishedConstructsReducerAction, PublishedConstructsReducerState } from "../types/Construct"
+import { getTag } from "../libraries/Nostr"
 
 const constructsReducer = (state: PublishedConstructsReducerState, action: PublishedConstructsReducerAction) => {
+  if (action.construct) {
+    try {
+      const binaryEventID: Uint8Array = hexToBytes(action.construct.id)
+      const nonceTag = action.construct.tags.find(getTag('nonce'))
+      const target = nonceTag && nonceTag[2]
+      if (!target) throw new Error('no target found')
+      const binaryTargetCoord: Uint8Array = hexToBytes(target)
+      action.construct.workCompleted = getConstructProofOfWork(binaryTargetCoord, binaryEventID)
+    } catch(e) {
+      console.error('failed to parse construct nonce tag', action.construct.id, e)
+      return state
+    }
+  }
   switch(action.type) {
     case 'add': 
       return {

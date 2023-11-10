@@ -3,8 +3,8 @@ import { Filter } from "nostr-tools"
 import { IdentityContextType } from "../types/IdentityType"
 import { IdentityContext } from "../providers/IdentityProvider"
 import { defaultRelays, getRelayList, pool } from '../libraries/Nostr'
-import { PublishedConstructsReducerAction, PublishedConstructsReducerState, PublishedConstructType } from '../types/Construct'
-import { sortPublishedConstructsPOW } from '../libraries/Constructs'
+import { PublishedConstructsReducerAction, PublishedConstructsReducerState, PublishedConstructType} from '../types/Construct'
+import { decodeHexToCoordinates, sortPublishedConstructsPOW } from '../libraries/Constructs'
 
 type MyConstructsProps = {
   constructs: PublishedConstructsReducerState
@@ -29,14 +29,32 @@ const MyConstructs = ({constructs, updatePublishedConstructs}: MyConstructsProps
     return () => {
       pool.close(relayList)
     }
-  }, [identity.pubkey]) // @todo add some kind of dependency for when new constructs are published
+  }, [identity.pubkey, updatePublishedConstructs]) // @todo add some kind of dependency for when new constructs are published
 
   const constructsArray = Object.values(constructs).sort(sortPublishedConstructsPOW)
 
   return (
     <div id="my-constructs">
       <h1>Published Constructs</h1>
-      { constructsArray.length ? constructsArray.map((construct) => <div>{construct.id}</div>) : 'no constructs found.' }
+      { constructsArray.length ? constructsArray.map((construct) =>{
+          const coords = decodeHexToCoordinates(construct.id)
+          return (
+            <div className="construct saved" key={construct.id} style={{marginBottom: '1rem'}}>
+              <h2>{ construct.workCompleted } POW - {coords.plane}</h2>
+              <p>
+                x: { ((Number(coords.x) / Number(2n**85n)) * 100 ).toFixed(0) }%<br/>
+                y: { ((Number(coords.y) / Number(2n**85n)) * 100 ).toFixed(0) }%<br/>
+                z: { ((Number(coords.z) / Number(2n**85n)) * 100 ).toFixed(0) }%<br/>
+              </p>
+              <small className="id" onClick={() => {
+                // copy to clipboard
+                navigator.clipboard.writeText(construct.id)
+              }}>{ construct.id }</small>
+              <br/><br/>
+            </div>
+          )
+        }) 
+      : 'no constructs found.' }
     </div>
   )
 

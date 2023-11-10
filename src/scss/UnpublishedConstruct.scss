@@ -8,9 +8,21 @@
     margin: 0;
   }
   small.id {
-    font-size: 8px;
+    font-size: 12px;
   }
   &.selected {
     background-color: #391557;
+  }
+  &.saved {
+    background-color: #1e1824;
+    cursor: default;
+    small.id {
+      cursor: pointer;
+      padding: 1rem;
+      border-radius: 1rem;
+      &:active {
+        background-color: #6b22a7;
+      }
+    }
   }
 }

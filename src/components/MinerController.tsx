@@ -70,6 +70,7 @@ export const Miner = ({existingConstructs, targetHex, targetWork}: MinerProps) =
     return () => {
       workers.forEach(w => w.terminate())
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
     
   // load constructs from localstorage on load
@@ -238,7 +239,7 @@ export const Miner = ({existingConstructs, targetHex, targetWork}: MinerProps) =
     setMiningActive(false)
   }
 
-  const showUnpublishedConstructs = () => {
+  const showConstructs = () => {
     const mined = <h1>Mined Constructs</h1>
     return [mined, Object.values(constructs).sort(sortUnpublishedConstructsPOW).map(c => {
       const publishStatus = existingConstructs[c.id]
@@ -265,7 +266,7 @@ export const Miner = ({existingConstructs, targetHex, targetWork}: MinerProps) =
       {/* create a css grid layout where the left column scrolls with the rendered constructs and the right column is a full viewport for the constructviewer component */}
       <div className="grid grid-cols-2">
         <div className="mined overflow-y-scroll h-screen">
-          {showUnpublishedConstructs()}
+          {showConstructs()}
         </div>
         <div className="h-screen">
           { selectedUnpublishedConstruct ? <ConstructViewer constructSize={selectedUnpublishedConstruct.workCompleted} hexLocation={selectedUnpublishedConstruct.id} /> : null }

@@ -17,7 +17,9 @@ export type UnpublishedConstructsReducerAction = {
 }
 
 
-export type PublishedConstructType = Event<331>
+export type PublishedConstructType = Event<331> & {
+  workCompleted: number,
+}
 
 export type PublishedConstructsReducerState = {
   [key: string]: PublishedConstructType 
