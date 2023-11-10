@@ -21,7 +21,7 @@ const MyConstructs = ({constructs, updatePublishedConstructs}: MyConstructsProps
     const sub = pool.sub(relayList, [filter])
     const loadMyConstructs = async () => {
       sub.on('event', event => {
-        console.log('found construct', event)
+        console.log('found construct', event.id)
         updatePublishedConstructs({type: 'add', construct: event as PublishedConstructType})
       })
     }

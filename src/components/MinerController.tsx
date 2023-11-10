@@ -30,12 +30,20 @@ type MinerProps = {
 }
 
 const constructsReducer = (state: UnpublishedConstructsReducerState, action: UnpublishedConstructsReducerAction) => {
+  const existingConstructs = action.published ? Object.keys(action.published) : []
   switch(action.type) {
     case 'add': 
-      return {
+      return action.construct ? {
         ...state,
         [action.construct.id]: action.construct
-      }
+      } : state
+    case 'clear':
+      return Object.keys(state)
+        .filter(key => existingConstructs.includes(key))
+        .reduce((newState, key) => {
+          newState[key] = state[key]
+          return newState
+      }, {} as UnpublishedConstructsReducerState)
     default:
       return state
   }
@@ -238,9 +246,20 @@ export const Miner = ({existingConstructs, targetHex, targetWork}: MinerProps) =
     })]
   }
 
+  const clearConstructs = () => {
+    localStorage.removeItem('constructs')
+    constructsDispatch({type: 'clear', published: existingConstructs})
+  }
+
   return (
     <>
-      <><br/><br/>{ miningActive ? <button onClick={stopMining}>Stop Mining 🛑</button> : <button onClick={startMining}>Start Mining ▶</button>}</>
+      <>
+        <br/><br/>
+        { miningActive ? <button onClick={stopMining}>Stop Mining 🛑</button> : <button onClick={startMining}>Start Mining ▶</button>}
+      </>
+      <>
+        &nbsp;{ miningActive ? <button disabled>Delete Unpublished Constructs</button> : <button onClick={clearConstructs}>Delete Unpublished Constructs</button>}
+      </>
       <br/><br/>
       <hr style={{borderColor: "#fff6", borderStyle: "dotted", borderTopWidth: "6px", borderBottomWidth: "0px"}}/>
       {/* create a css grid layout where the left column scrolls with the rendered constructs and the right column is a full viewport for the constructviewer component */}

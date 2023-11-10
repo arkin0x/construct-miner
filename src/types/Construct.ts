@@ -11,8 +11,9 @@ export type UnpublishedConstructsReducerState = {
   [key: string]: UnpublishedConstructType
 }
 export type UnpublishedConstructsReducerAction = {
-  type: 'add',
-  construct: UnpublishedConstructType
+  type: 'add' | 'clear',
+  construct?: UnpublishedConstructType
+  published?: PublishedConstructsReducerState
 }
 
 
