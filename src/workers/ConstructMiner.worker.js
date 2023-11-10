@@ -59,9 +59,8 @@ function initiateMining(data){
     while(nonce < batch && active){
 
       binaryEvent = incrementNonceBuffer(binaryEvent, nonceBounds[0], nonceBounds[1])
-      nonce++
       hash = sha256(binaryEvent)
-      work = getConstructProofOfWork(hash, binaryTarget)
+      work = getConstructProofOfWork(binaryTarget, hash)
 
       if (work > highestWork) {
         highestWork = work
@@ -82,6 +81,7 @@ function initiateMining(data){
         reportHeartbeat(workerNumber, highestWork, nonce, createdAt, performance.now()-hashDurationBegin)
         hashDurationBegin = performance.now()
       }
+      nonce++
     }
 
     batchComplete(workerNumber, work, nonce, createdAt, hash, performance.now()-start)

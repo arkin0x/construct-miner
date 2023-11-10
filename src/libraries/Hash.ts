@@ -114,12 +114,7 @@ export function hammingDistance(arr1: Uint8Array, arr2: Uint8Array): number {
 }
 
 export function getConstructProofOfWork(targetHash: Uint8Array, currentHash: Uint8Array, length = 255) {
-  // ignore 256th bit (it's ignored in the spec)
-  // we do this before calculating the hamming distance because we shouldn't change how hamming function works but we need to ignore the last bit as it is not used in any coordinate.
-  // zero out last bit in last byte of targetHash
-  targetHash[targetHash.length - 1] &= 0b01111111
-  // zero out last bit in last byte of currentHash
-  currentHash[currentHash.length - 1] &= 0b01111111
+  // Previously, the last bit was ignored; this caused a bug because we modified it. That was dumb. But also, now that the last bit is used to define the plane, we should include it in the similarity calculation as it is relevant to the similarity.
   const distance = hammingDistance(targetHash, currentHash)
   const similarity = length - distance
   // We subtract 128 because any random hash will have an average similarity of 128.
