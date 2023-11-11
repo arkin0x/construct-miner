@@ -10,6 +10,7 @@ import MyConstructs from "./MyConstructs"
 import '../scss/MinerPage.scss'
 import { PublishedConstructsReducerAction, PublishedConstructsReducerState } from "../types/Construct"
 import { getTag } from "../libraries/Nostr"
+import { CENTERCOORD } from "../libraries/Cyberspace"
 
 const constructsReducer = (state: PublishedConstructsReducerState, action: PublishedConstructsReducerAction) => {
   if (action.construct) {
@@ -38,7 +39,7 @@ const constructsReducer = (state: PublishedConstructsReducerState, action: Publi
 
 const MinerPage = () => {
   // const { identity } = useContext<IdentityContextType>(IdentityContext)
-  const [ targetHash, setTargetHash ] = useState<string>('0000000000000000000000000000000000000000000000000000000000000000')
+  const [ targetHash, setTargetHash ] = useState<string>(CENTERCOORD)
   const [ targetWork, setTargetWork ] = useState<number>(50)
   const [ validTargetHash, setValidTargetHash ] = useState<boolean>(true)
   const targetHashRef = useRef<HTMLInputElement>(null)
@@ -75,7 +76,8 @@ const MinerPage = () => {
       <MinerIntro/>
       <div className="panel">
         <label>Target Coordinate {validTargetHash ? ' ✅ Valid 256-bit Coordinate' : null}</label><br/>
-        <input ref={targetHashRef} className={inputTargetHashClass} type="text" maxLength={64} placeholder="0000000000000000000000000000000000000000000000000000000000000000" onChange={updateTargetHash}/>
+        <input ref={targetHashRef} className={inputTargetHashClass} type="text" maxLength={64} placeholder={CENTERCOORD} onChange={updateTargetHash}/>
+        { targetHash === CENTERCOORD ? <span className="note" style={{fontStyle: 'italic', fontFamily: 'monospace'}}>Note: 1FF...FFF is the very center of Ideaspace. Change the last F to E for the center of Dataspace.</span> : null}
         <br/><br/>
         <label>Target Work</label><br/>
         <input className={'input'} type="number" max={256} min={1} defaultValue={50} onChange={updateTargetWork}/>
